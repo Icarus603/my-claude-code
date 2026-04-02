@@ -43,7 +43,7 @@ This README is written for people who already have access to this repository. It
 - Repository visibility: private
 - Primary audience: repo owner and invited collaborators
 - Main workflow: clone locally, install dependencies, build the CLI, then authenticate for the provider you want to use
-- Supporting technical notes live in [FEATURES.md](FEATURES.md), [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), and [changes.md](changes.md)
+- Supporting technical notes live in [FEATURES.md](FEATURES.md), [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), and [ARCHITECTURE.md](ARCHITECTURE.md)
 
 ---
 
@@ -217,6 +217,18 @@ bun run build
 | `CLAUDE_CODE_USE_VERTEX` | switch to Google Vertex AI |
 | `CLAUDE_CODE_USE_FOUNDRY` | switch to Anthropic Foundry |
 | `CLAUDE_CODE_OAUTH_TOKEN` | OAuth token provided via environment |
+| `CLAUDE_CONFIG_DIR` | override the config directory (default: `~/.my-claude-code`) |
+
+### Config isolation
+
+This fork defaults `CLAUDE_CONFIG_DIR` to `~/.my-claude-code` so its settings, auth tokens, teammate models, and MCP configs are fully separate from an official Claude Code installation in `~/.claude`.
+
+To share config with the official installation:
+
+```bash
+export CLAUDE_CONFIG_DIR="$HOME/.claude"
+./dist/cli.js
+```
 
 ---
 
@@ -225,7 +237,7 @@ bun run build
 - [FEATURES.md](FEATURES.md): technical audit of compile-time feature flags in this snapshot
 - [AGENTS.md](AGENTS.md): Codex-oriented repo guidance for coding agents
 - [CLAUDE.md](CLAUDE.md): Claude-oriented repo guidance for coding agents
-- [changes.md](changes.md): one-off development notes for the Codex integration work
+- [ARCHITECTURE.md](ARCHITECTURE.md): deep-dive into codebase design and architecture
 
 The default build already includes this repo's current working feature bundle:
 

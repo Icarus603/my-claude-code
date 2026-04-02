@@ -1,6 +1,6 @@
 {
   "name": "my-claude-code",
-  "version": "2.1.90",
+  "version": "9.9.99",
   "private": true,
   "description": "Personal Claude Code build for the Icarus603/my-claude-code repository.",
   "type": "module",
