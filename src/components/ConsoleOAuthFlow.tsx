@@ -12,6 +12,7 @@ import { sendNotification } from '../services/notifier.js';
 import { runCodexOAuthFlow } from '../services/oauth/codex-client.js';
 import { OAuthService } from '../services/oauth/index.js';
 import { getOauthAccountInfo, saveCodexOAuthTokens, validateForceLoginOrg } from '../utils/auth.js';
+import { saveGlobalConfig } from '../utils/config.js';
 import { logError } from '../utils/log.js';
 import { getSettings_DEPRECATED } from '../utils/settings/settings.js';
 import { Select } from './CustomSelect/select.js';
@@ -274,6 +275,14 @@ export function ConsoleOAuthFlow({
       });
       // Save directly via saveCodexOAuthTokens (bypasses installOAuthTokens Anthropic path)
       saveCodexOAuthTokens(codexTokens);
+      saveGlobalConfig(current => ({
+        ...current,
+        env: {
+          ...(current.env ?? {}),
+          CLAUDE_CODE_USE_OPENAI: '1',
+        },
+      }));
+      process.env.CLAUDE_CODE_USE_OPENAI = '1';
       logEvent('tengu_oauth_codex_success', {});
       setOAuthStatus({ state: 'success' });
       void sendNotification({ message: 'Codex login successful', notificationType: 'auth_success' }, terminal);

@@ -94,7 +94,6 @@ export ANTHROPIC_API_KEY="..."
 Codex uses OpenAI OAuth through the CLI. Set the provider flag first, then run `/login`.
 
 ```bash
-export CLAUDE_CODE_USE_OPENAI=1
 ./cli
 ```
 
@@ -105,6 +104,10 @@ Inside the CLI:
 ```
 
 Then choose the Codex login flow.
+
+After a successful Codex login, this fork now persists `CLAUDE_CODE_USE_OPENAI=1`
+in your user config automatically, so new terminal tabs will continue using
+OpenAI Codex without needing another manual `export`.
 
 Supported model examples:
 
@@ -149,7 +152,7 @@ export ANTHROPIC_FOUNDRY_API_KEY="..."
 | Provider | Selection | Authentication |
 |---|---|---|
 | Anthropic | default | `ANTHROPIC_API_KEY` or Anthropic `/login` |
-| OpenAI Codex | `CLAUDE_CODE_USE_OPENAI=1` | OpenAI `/login` |
+| OpenAI Codex | default after Codex login | OpenAI `/login` |
 | AWS Bedrock | `CLAUDE_CODE_USE_BEDROCK=1` | AWS credentials |
 | Google Vertex AI | `CLAUDE_CODE_USE_VERTEX=1` | Google ADC |
 | Anthropic Foundry | `CLAUDE_CODE_USE_FOUNDRY=1` | `ANTHROPIC_FOUNDRY_API_KEY` |
@@ -201,7 +204,7 @@ bun run build
 ./cli --model claude-opus-4-6
 
 # start Codex mode
-CLAUDE_CODE_USE_OPENAI=1 ./cli
+./cli
 ```
 
 ### Selected environment variables
@@ -212,7 +215,7 @@ CLAUDE_CODE_USE_OPENAI=1 ./cli
 | `ANTHROPIC_AUTH_TOKEN` | alternative Anthropic auth token |
 | `ANTHROPIC_MODEL` | override default Anthropic model |
 | `ANTHROPIC_BASE_URL` | custom Anthropic-compatible endpoint |
-| `CLAUDE_CODE_USE_OPENAI` | switch to OpenAI Codex backend |
+| `CLAUDE_CODE_USE_OPENAI` | manually force OpenAI Codex backend |
 | `CLAUDE_CODE_USE_BEDROCK` | switch to AWS Bedrock |
 | `CLAUDE_CODE_USE_VERTEX` | switch to Google Vertex AI |
 | `CLAUDE_CODE_USE_FOUNDRY` | switch to Anthropic Foundry |
