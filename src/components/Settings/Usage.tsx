@@ -3,7 +3,7 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { extraUsage as extraUsageCommand } from 'src/commands/extra-usage/index.js';
 import { formatCost } from 'src/cost-tracker.js';
-import { getSubscriptionType } from 'src/utils/auth.js';
+import { getSubscriptionType, isCodexSubscriber } from 'src/utils/auth.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { Box, Text } from '../../ink.js';
 import { useKeybinding } from '../../keybindings/useKeybinding.js';
@@ -233,8 +233,15 @@ export function Usage(): React.ReactNode {
   // Show for null (unknown plan) to stay consistent with rateLimitMessages.ts,
   // which labels it "Sonnet limit" in that case.
   const subscriptionType = getSubscriptionType();
+  const isCodex = isCodexSubscriber();
   const showSonnetBar = subscriptionType === 'max' || subscriptionType === 'team' || subscriptionType === null;
-  const limits = [{
+  const limits = isCodex ? [{
+    title: 'Current session',
+    limit: utilization.five_hour
+  }, {
+    title: 'Current week',
+    limit: utilization.seven_day
+  }] : [{
     title: 'Current session',
     limit: utilization.five_hour
   }, {
@@ -245,18 +252,20 @@ export function Usage(): React.ReactNode {
     limit: utilization.seven_day_sonnet
   }] : [])];
   return <Box flexDirection="column" gap={1} width="100%">
+      {isCodex && utilization.plan_type && <Text dimColor={true}>ChatGPT {utilization.plan_type} subscription</Text>}
+      {isCodex && utilization.credits_balance !== undefined && utilization.credits_balance !== null && <Text dimColor={true}>Credits balance: {utilization.credits_balance}</Text>}
       {limits.some(({
       limit
-    }) => limit) || <Text dimColor>/usage is only available for subscription plans.</Text>}
+    }) => limit) || <Text dimColor>{isCodex ? 'Usage data is unavailable for this Codex account right now.' : '/usage is only available for subscription plans.'}</Text>}
 
       {limits.map(({
       title,
       limit: limit_0
     }) => limit_0 && <LimitBar key={title} title={title} limit={limit_0} maxWidth={maxWidth} />)}
 
-      {utilization.extra_usage && <ExtraUsageSection extraUsage={utilization.extra_usage} maxWidth={maxWidth} />}
+      {!isCodex && utilization.extra_usage && <ExtraUsageSection extraUsage={utilization.extra_usage} maxWidth={maxWidth} />}
 
-      {isEligibleForOverageCreditGrant() && <OverageCreditUpsell maxWidth={maxWidth} />}
+      {!isCodex && isEligibleForOverageCreditGrant() && <OverageCreditUpsell maxWidth={maxWidth} />}
 
       <Text dimColor>
         <ConfigurableShortcutHint action="confirm:no" context="Settings" fallback="Esc" description="cancel" />

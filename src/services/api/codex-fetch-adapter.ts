@@ -16,6 +16,7 @@
  */
 
 import { getCodexOAuthTokens } from '../../utils/auth.js'
+import { mapEffortToOpenAIReasoningEffort } from '../../utils/effort.js'
 
 // ── Available Codex models ──────────────────────────────────────────
 export const CODEX_MODELS = [
@@ -230,8 +231,17 @@ function translateToCodexBody(anthropicBody: Record<string, unknown>): {
     | undefined
   const claudeModel = anthropicBody.model as string
   const anthropicTools = (anthropicBody.tools || []) as AnthropicTool[]
+  const anthropicOutputConfig =
+    (anthropicBody.output_config as { effort?: unknown } | undefined) ?? undefined
+  const anthropicSpeed =
+    typeof anthropicBody.speed === 'string' ? anthropicBody.speed : undefined
 
   const codexModel = mapClaudeModelToCodex(claudeModel)
+  const codexReasoningEffort = mapEffortToOpenAIReasoningEffort(
+    typeof anthropicOutputConfig?.effort === 'string'
+      ? anthropicOutputConfig.effort
+      : undefined,
+  )
 
   // Build system instructions
   let instructions = ''
@@ -258,6 +268,16 @@ function translateToCodexBody(anthropicBody: Record<string, unknown>): {
     input,
     tool_choice: 'auto',
     parallel_tool_calls: true,
+  }
+
+  if (codexReasoningEffort) {
+    codexBody.reasoning = {
+      effort: codexReasoningEffort,
+    }
+  }
+
+  if (anthropicSpeed === 'fast') {
+    codexBody.service_tier = 'priority'
   }
 
   // Add tools if present

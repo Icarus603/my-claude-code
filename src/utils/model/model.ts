@@ -304,7 +304,7 @@ export function getClaudeAiUserDefaultModelDescription(
   fastMode = false,
 ): string {
   if (isCodexSubscriber()) {
-    return 'GPT-5.3 Codex · Optimized for code generation and understanding'
+    return 'GPT-5.3-Codex · Optimized for code generation and understanding'
   }
   if (isMaxSubscriber() || isTeamPremiumSubscriber()) {
     if (isOpus1mMergeEnabled()) {
@@ -372,7 +372,9 @@ export function getPublicModelDisplayName(model: ModelName): string | null {
     if (model === 'gpt-5.1-codex') return 'Codex 5.1'
     if (model === 'gpt-5.1-codex-mini') return 'Codex 5.1 Mini'
     if (model === 'gpt-5.1-codex-max') return 'Codex 5.1 Max'
-    if (model === 'gpt-5.4') return 'GPT 5.4'
+    if (model === 'gpt-5.4') return 'GPT-5.4'
+    if (model === 'gpt-5.3-codex') return 'GPT-5.3-Codex'
+    if (model === 'gpt-5.4-mini') return 'GPT-5.4-Mini'
     if (model === 'gpt-5.2') return 'GPT 5.2'
     return model
   }
@@ -411,9 +413,9 @@ export function getPublicModelDisplayName(model: ModelName): string | null {
     case getModelStrings().gpt54:
       return 'GPT-5.4'
     case getModelStrings().gpt53codex:
-      return 'GPT-5.3 Codex'
+      return 'GPT-5.3-Codex'
     case getModelStrings().gpt54mini:
-      return 'GPT-5.4 Mini'
+      return 'GPT-5.4-Mini'
     default:
       return null
   }
@@ -602,7 +604,10 @@ export function modelDisplayString(model: ModelSetting): string {
     return `Default (${getDefaultMainLoopModel()})`
   }
   const resolvedModel = parseUserSpecifiedModel(model)
-  return model === resolvedModel ? resolvedModel : `${model} (${resolvedModel})`
+  const renderedResolvedModel = renderModelName(resolvedModel)
+  return model === resolvedModel
+    ? renderedResolvedModel
+    : `${model} (${renderedResolvedModel})`
 }
 
 // @[MODEL LAUNCH]: Add a marketing name mapping for the new model below.
@@ -650,13 +655,13 @@ export function getMarketingNameForModel(modelId: string): string | undefined {
   }
   // OpenAI Codex models
   if (canonical.includes('gpt-5.4-mini')) {
-    return 'GPT-5.4 Mini'
+    return 'GPT-5.4-Mini'
   }
   if (canonical.includes('gpt-5.4')) {
     return 'GPT-5.4'
   }
   if (canonical.includes('gpt-5.3-codex')) {
-    return 'GPT-5.3 Codex'
+    return 'GPT-5.3-Codex'
   }
 
   return undefined

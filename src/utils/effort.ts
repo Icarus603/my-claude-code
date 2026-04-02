@@ -19,10 +19,26 @@ export const EFFORT_LEVELS = [
 
 export type EffortValue = EffortLevel | number
 
+export type OpenAIReasoningEffort =
+  | 'none'
+  | 'minimal'
+  | 'low'
+  | 'medium'
+  | 'high'
+  | 'xhigh'
+
+function isOpenAIGpt5Model(model: string): boolean {
+  const m = model.toLowerCase()
+  return m.includes('gpt-5')
+}
+
 // @[MODEL LAUNCH]: Add the new model to the allowlist if it supports the effort parameter.
 export function modelSupportsEffort(model: string): boolean {
   const m = model.toLowerCase()
   if (isEnvTruthy(process.env.CLAUDE_CODE_ALWAYS_ENABLE_EFFORT)) {
+    return true
+  }
+  if (getAPIProvider() === 'openai' && isOpenAIGpt5Model(m)) {
     return true
   }
   const supported3P = get3PModelCapabilityOverride(model, 'effort')
@@ -51,6 +67,9 @@ export function modelSupportsEffort(model: string): boolean {
 // @[MODEL LAUNCH]: Add the new model to the allowlist if it supports 'max' effort.
 // Per API docs, 'max' is Opus 4.6 only for public models — other models return an error.
 export function modelSupportsMaxEffort(model: string): boolean {
+  if (getAPIProvider() === 'openai' && isOpenAIGpt5Model(model)) {
+    return true
+  }
   const supported3P = get3PModelCapabilityOverride(model, 'max_effort')
   if (supported3P !== undefined) {
     return supported3P
@@ -230,7 +249,7 @@ export function getEffortLevelDescription(level: EffortLevel): string {
     case 'high':
       return 'Comprehensive implementation with extensive testing and documentation'
     case 'max':
-      return 'Maximum capability with deepest reasoning (Opus 4.6 only)'
+      return 'Highest available reasoning effort for supported models'
   }
 }
 
@@ -326,4 +345,23 @@ export function getDefaultEffortForModel(
   // Fallback to undefined, which means we don't set an effort level. This
   // should resolve to high effort level in the API.
   return undefined
+}
+
+export function mapEffortToOpenAIReasoningEffort(
+  effortValue: EffortValue | undefined,
+): OpenAIReasoningEffort | undefined {
+  if (effortValue === undefined || typeof effortValue === 'number') {
+    return undefined
+  }
+
+  switch (effortValue) {
+    case 'low':
+      return 'low'
+    case 'medium':
+      return 'medium'
+    case 'high':
+      return 'high'
+    case 'max':
+      return 'xhigh'
+  }
 }

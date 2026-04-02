@@ -503,7 +503,7 @@ const darkTheme: Theme = {
 
   memoryBackgroundColor: 'rgb(55, 65, 70)',
   rate_limit_fill: 'rgb(131,210,238)', // Light cyan-blue
-  rate_limit_empty: 'rgb(80,83,112)', // Medium blue-purple
+  rate_limit_empty: 'rgb(74,82,92)', // Muted slate blue
   fastMode: 'rgb(255,120,20)', // Electric orange for dark bg
   fastModeShimmer: 'rgb(255,165,70)', // Lighter orange for shimmer
   briefLabelYou: 'rgb(122,180,232)', // Light blue

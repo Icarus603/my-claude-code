@@ -74,6 +74,10 @@ export function getFastModeUnavailableReason(): string | null {
     return 'Fast mode is not available'
   }
 
+  if (getAPIProvider() === 'openai') {
+    return null
+  }
+
   const statigReason = getFeatureValue_CACHED_MAY_BE_STALE(
     'tengu_penguins_off',
     null,
@@ -140,9 +144,14 @@ export function getFastModeUnavailableReason(): string | null {
 }
 
 // @[MODEL LAUNCH]: Update supported Fast Mode models.
-export const FAST_MODE_MODEL_DISPLAY = 'Opus 4.6'
+export function getFastModeModelDisplay(): string {
+  return getAPIProvider() === 'openai' ? 'GPT-5.4' : 'Opus 4.6'
+}
 
 export function getFastModeModel(): string {
+  if (getAPIProvider() === 'openai') {
+    return 'gpt-5.4'
+  }
   return 'opus' + (isOpus1mMergeEnabled() ? '[1m]' : '')
 }
 
@@ -172,6 +181,9 @@ export function isFastModeSupportedByModel(
   }
   const model = modelSetting ?? getDefaultMainLoopModelSetting()
   const parsedModel = parseUserSpecifiedModel(model)
+  if (getAPIProvider() === 'openai') {
+    return parsedModel.toLowerCase() === 'gpt-5.4'
+  }
   return parsedModel.toLowerCase().includes('opus-4-6')
 }
 
@@ -405,6 +417,11 @@ export function resolveFastModeStatusFromCache(): void {
 }
 
 export async function prefetchFastModeStatus(): Promise<void> {
+  if (getAPIProvider() === 'openai') {
+    orgStatus = { status: 'enabled' }
+    return
+  }
+
   // Skip network requests if nonessential traffic is disabled
   if (isEssentialTrafficOnly()) {
     return
