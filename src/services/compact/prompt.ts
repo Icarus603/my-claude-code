@@ -274,6 +274,7 @@ const NO_TOOLS_TRAILER =
 export function getPartialCompactPrompt(
   customInstructions?: string,
   direction: PartialCompactDirection = 'from',
+  responseLanguage?: string,
 ): string {
   const template =
     direction === 'up_to'
@@ -285,16 +286,27 @@ export function getPartialCompactPrompt(
     prompt += `\n\nAdditional Instructions:\n${customInstructions}`
   }
 
+  if (responseLanguage && responseLanguage.trim() !== '') {
+    prompt += `\n\nLanguage Requirement:\nWrite the summary entirely in ${responseLanguage}. Preserve technical terms, code, file paths, and identifiers in their original form where appropriate.`
+  }
+
   prompt += NO_TOOLS_TRAILER
 
   return prompt
 }
 
-export function getCompactPrompt(customInstructions?: string): string {
+export function getCompactPrompt(
+  customInstructions?: string,
+  responseLanguage?: string,
+): string {
   let prompt = NO_TOOLS_PREAMBLE + BASE_COMPACT_PROMPT
 
   if (customInstructions && customInstructions.trim() !== '') {
     prompt += `\n\nAdditional Instructions:\n${customInstructions}`
+  }
+
+  if (responseLanguage && responseLanguage.trim() !== '') {
+    prompt += `\n\nLanguage Requirement:\nWrite the summary entirely in ${responseLanguage}. Preserve technical terms, code, file paths, and identifiers in their original form where appropriate.`
   }
 
   prompt += NO_TOOLS_TRAILER

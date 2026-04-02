@@ -204,7 +204,24 @@ export function roughTokenCountEstimation(
   content: string,
   bytesPerToken: number = 4,
 ): number {
-  return Math.round(content.length / bytesPerToken)
+  let cjkLikeChars = 0
+  let nonCjkUtf8Bytes = 0
+
+  for (const char of content) {
+    if (isCjkLikeChar(char)) {
+      cjkLikeChars++
+    } else {
+      nonCjkUtf8Bytes += Buffer.byteLength(char, 'utf8')
+    }
+  }
+
+  return Math.round(cjkLikeChars + nonCjkUtf8Bytes / bytesPerToken)
+}
+
+function isCjkLikeChar(char: string): boolean {
+  return /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}\p{Script=Hangul}]/u.test(
+    char,
+  )
 }
 
 /**

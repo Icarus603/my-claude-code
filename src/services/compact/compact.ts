@@ -77,6 +77,7 @@ import {
   getTranscriptPath,
   reAppendSessionMetadata,
 } from '../../utils/sessionStorage.js'
+import { getInitialSettings } from '../../utils/settings/settings.js'
 import { sleep } from '../../utils/sleep.js'
 import { jsonStringify } from '../../utils/slowOperations.js'
 /* eslint-enable @typescript-eslint/no-require-imports */
@@ -129,6 +130,29 @@ export const POST_COMPACT_MAX_TOKENS_PER_FILE = 5_000
 export const POST_COMPACT_MAX_TOKENS_PER_SKILL = 5_000
 export const POST_COMPACT_SKILLS_TOKEN_BUDGET = 25_000
 const MAX_COMPACT_STREAMING_RETRIES = 2
+
+function getCompactResponseLanguage(): string | undefined {
+  const language = getInitialSettings().language
+  if (!language) {
+    return undefined
+  }
+  const trimmed = language.trim()
+  return trimmed === '' ? undefined : trimmed
+}
+
+export function buildCompactStreamingSystemPrompt(
+  responseLanguage?: string,
+): string[] {
+  const systemPromptParts = [
+    'You are a helpful AI assistant tasked with summarizing conversations.',
+  ]
+  if (responseLanguage) {
+    systemPromptParts.push(
+      `Always write the summary in ${responseLanguage}. Preserve technical terms, code, file paths, and identifiers in their original form where appropriate.`,
+    )
+  }
+  return systemPromptParts
+}
 
 /**
  * Strip image blocks from user messages before sending for compaction.
@@ -437,7 +461,8 @@ export async function compactConversation(
       true,
     )
 
-    const compactPrompt = getCompactPrompt(customInstructions)
+    const responseLanguage = getCompactResponseLanguage()
+    const compactPrompt = getCompactPrompt(customInstructions, responseLanguage)
     const summaryRequest = createUserMessage({
       content: compactPrompt,
     })
@@ -837,7 +862,12 @@ export async function partialCompactConversation(
     context.setResponseLength?.(() => 0)
     context.onCompactProgress?.({ type: 'compact_start' })
 
-    const compactPrompt = getPartialCompactPrompt(customInstructions, direction)
+    const responseLanguage = getCompactResponseLanguage()
+    const compactPrompt = getPartialCompactPrompt(
+      customInstructions,
+      direction,
+      responseLanguage,
+    )
     const summaryRequest = createUserMessage({
       content: compactPrompt,
     })
@@ -1289,6 +1319,10 @@ async function streamCompactSummary({
           )
         : [FileReadTool]
 
+      const responseLanguage = getCompactResponseLanguage()
+      const systemPromptParts =
+        buildCompactStreamingSystemPrompt(responseLanguage)
+
       const streamingGen = queryModelWithStreaming({
         messages: normalizeMessagesForAPI(
           stripImagesFromMessages(
@@ -1299,9 +1333,7 @@ async function streamCompactSummary({
           ),
           context.options.tools,
         ),
-        systemPrompt: asSystemPrompt([
-          'You are a helpful AI assistant tasked with summarizing conversations.',
-        ]),
+        systemPrompt: asSystemPrompt(systemPromptParts),
         thinkingConfig: { type: 'disabled' as const },
         tools,
         signal: context.abortController.signal,
