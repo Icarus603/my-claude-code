@@ -18,24 +18,14 @@ externalized `@ant/*` packages.
 ## Build Variants
 
 - `bun run build`
-  Builds the regular external binary at `./cli`.
-- `bun run compile`
-  Builds the regular external binary at `./dist/cli`.
-- `bun run build:dev`
-  Builds `./cli-dev` with a dev-stamped version and experimental GrowthBook key.
-- `bun run build:dev:full`
-  Builds `./cli-dev` with the entire current "Working Experimental Features"
-  bundle from this document, minus `CHICAGO_MCP`. That flag still compiles,
-  but the external binary does not boot cleanly with it because startup
-  reaches the missing `@ant/computer-use-mcp` runtime package.
+  Builds the regular external binary at `./dist/cli.js` with the repo's
+  default feature bundle enabled.
 
 ## Default Build Flags
 
-- `VOICE_MODE`
-  This is now included in the default build pipeline, not just the dev build.
-  It enables `/voice`, push-to-talk UI, voice notices, and dictation plumbing.
-  Runtime still depends on claude.ai OAuth plus either the native audio module
-  or a fallback recorder such as SoX.
+The default build now enables the full "Working Experimental Features" bundle
+from this document, excluding flags that are known not to bundle or boot
+cleanly in the external snapshot.
 
 ## Working Experimental Features
 

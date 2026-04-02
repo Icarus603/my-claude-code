@@ -120,17 +120,17 @@ install_deps() {
 }
 
 build_binary() {
-  info "Building my-claude-code (all experimental features enabled)..."
+  info "Building my-claude-code..."
   cd "$INSTALL_DIR"
-  bun run build:dev:full
-  ok "Binary built: $INSTALL_DIR/cli-dev"
+  bun run build
+  ok "Binary built: $INSTALL_DIR/dist/cli.js"
 }
 
 link_binary() {
   local link_dir="$HOME/.local/bin"
   mkdir -p "$link_dir"
 
-  ln -sf "$INSTALL_DIR/cli-dev" "$link_dir/my-claude-code"
+  ln -sf "$INSTALL_DIR/dist/cli.js" "$link_dir/my-claude-code"
   ok "Symlinked: $link_dir/my-claude-code"
 
   if ! echo "$PATH" | tr ':' '\n' | grep -qx "$link_dir"; then
@@ -174,6 +174,6 @@ printf "  ${BOLD}Or log in with Claude.ai:${RESET}\n"
 printf "    ${CYAN}my-claude-code /login${RESET}\n"
 echo ""
 printf "  ${DIM}Source: $INSTALL_DIR${RESET}\n"
-printf "  ${DIM}Binary: $INSTALL_DIR/cli-dev${RESET}\n"
+printf "  ${DIM}Binary: $INSTALL_DIR/dist/cli.js${RESET}\n"
 printf "  ${DIM}Link:   ~/.local/bin/my-claude-code${RESET}\n"
 echo ""

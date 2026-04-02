@@ -155,6 +155,12 @@ function translateMessages(
               .map(c => {
                 if (c.type === 'text') return c.text
                 if (c.type === 'image') return '[Image data attached]'
+                if (
+                  c.type === 'tool_reference' &&
+                  typeof c.tool_name === 'string'
+                ) {
+                  return `[Tool available: ${c.tool_name}]`
+                }
                 return ''
               })
               .join('\n')

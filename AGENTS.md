@@ -8,26 +8,17 @@ This file provides guidance to Codex (Codex.ai/code) when working with code in t
 # Install dependencies
 bun install
 
-# Standard build (./cli)
+# Build (./dist/cli.js)
 bun run build
-
-# Dev build (./cli-dev)
-bun run build:dev
-
-# Dev build with all experimental features (./cli-dev)
-bun run build:dev:full
-
-# Compiled build (./dist/cli)
-bun run compile
 
 # Run from source without compiling
 bun run dev
 ```
 
-Run the built binary with `./cli` or `./cli-dev`.
+Run the built binary with `./dist/cli.js`.
 
 - This repository is private/internal and is documented for the repo owner plus invited collaborators.
-- Use `./cli /login` only for Anthropic OAuth or OpenAI Codex OAuth.
+- Use `./dist/cli.js /login` only for Anthropic OAuth or OpenAI Codex OAuth.
 - Bedrock, Vertex AI, and Foundry use provider-specific credentials instead of `/login`.
 
 ## High-level architecture
@@ -48,4 +39,4 @@ Run the built binary with `./cli` or `./cli-dev`.
 
 ## Build system
 
-- scripts/build.ts is the build script and feature-flag bundler. Feature flags are set via build arguments (e.g., `--feature=ULTRAPLAN`) or presets like `--feature-set=dev-full` (see README for details).
+- scripts/build.ts is the build script and feature-flag bundler. Feature flags are set via build arguments such as `--feature=ULTRAPLAN` (see README for details).

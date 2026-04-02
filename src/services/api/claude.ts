@@ -1150,13 +1150,14 @@ async function* queryModel(
   // Filter out ToolSearchTool if tool search is not enabled for this model
   // ToolSearchTool returns tool_reference blocks which unsupported models can't handle
   let filteredTools: Tools
+  const discoveredToolNames = useToolSearch
+    ? extractDiscoveredToolNames(messages)
+    : new Set<string>()
 
   if (useToolSearch) {
     // Dynamic tool loading: Only include deferred tools that have been discovered
     // via tool_reference blocks in the message history. This eliminates the need
     // to predeclare all deferred tools upfront and removes limits on tool quantity.
-    const discoveredToolNames = extractDiscoveredToolNames(messages)
-
     filteredTools = tools.filter(tool => {
       // Always include non-deferred tools
       if (!deferredToolNames.has(tool.name)) return true
@@ -1205,8 +1206,21 @@ async function* queryModel(
   }
 
   const useGlobalCacheFeature = shouldUseGlobalCacheScope()
+  const shouldKeepDeferred = (t: Tool) => {
+    if (!useToolSearch || !deferredToolNames.has(t.name)) return false
+    // Anthropic tool search relies on tool_reference expansion. Codex does not,
+    // so once a deferred tool has been discovered we must send the real schema
+    // on the next request or the tool remains uncallable.
+    if (
+      getAPIProvider() === 'openai' &&
+      discoveredToolNames.has(t.name)
+    ) {
+      return false
+    }
+    return true
+  }
   const willDefer = (t: Tool) =>
-    useToolSearch && (deferredToolNames.has(t.name) || shouldDeferLspTool(t))
+    useToolSearch && (shouldKeepDeferred(t) || shouldDeferLspTool(t))
   // MCP tools are per-user → dynamic tool section → can't globally cache.
   // Only gate when an MCP tool will actually render (not defer_loading).
   const needsToolBasedCacheMarker =

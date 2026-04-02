@@ -7,8 +7,6 @@ const pkg = await Bun.file(new URL('../package.json', import.meta.url)).json() a
 }
 
 const args = process.argv.slice(2)
-const compile = args.includes('--compile')
-const dev = args.includes('--dev')
 
 const fullExperimentalFeatures = [
   'AGENT_MEMORY_SNAPSHOT',
@@ -64,27 +62,16 @@ function runCommand(cmd: string[]): string | null {
   return new TextDecoder().decode(proc.stdout).trim() || null
 }
 
-function getDevVersion(baseVersion: string): string {
-  const timestamp = new Date().toISOString()
-  const date = timestamp.slice(0, 10).replaceAll('-', '')
-  const time = timestamp.slice(11, 19).replaceAll(':', '')
-  const sha = runCommand(['git', 'rev-parse', '--short=8', 'HEAD']) ?? 'unknown'
-  return `${baseVersion}-dev.${date}.t${time}.sha${sha}`
-}
-
-function getVersionChangelog(): string {
-  return (
-    runCommand(['git', 'log', '--format=%h %s', '-20']) ??
-    'Local development build'
-  )
-}
-
-const defaultFeatures = ['VOICE_MODE']
+// Default builds in this repo should include the full bundle of currently
+// working experimental features. We still keep the array separate so callers
+// can add extra one-off flags with --feature=... when needed.
+const defaultFeatures = [...fullExperimentalFeatures]
 const featureSet = new Set(defaultFeatures)
 for (let i = 0; i < args.length; i += 1) {
   const arg = args[i]
   if (arg === '--feature-set' && args[i + 1]) {
     if (args[i + 1] === 'dev-full') {
+      // Backward-compatible no-op now that dev-full is the default bundle.
       for (const feature of fullExperimentalFeatures) {
         featureSet.add(feature)
       }
@@ -93,6 +80,7 @@ for (let i = 0; i < args.length; i += 1) {
     continue
   }
   if (arg === '--feature-set=dev-full') {
+    // Backward-compatible no-op now that dev-full is the default bundle.
     for (const feature of fullExperimentalFeatures) {
       featureSet.add(feature)
     }
@@ -108,16 +96,9 @@ for (let i = 0; i < args.length; i += 1) {
   }
 }
 const features = [...featureSet]
-
-const outfile = compile
-  ? dev
-    ? './dist/cli-dev'
-    : './dist/cli'
-  : dev
-    ? './cli-dev'
-    : './cli'
+const outfile = './dist/cli.js'
 const buildTime = new Date().toISOString()
-const version = dev ? getDevVersion(pkg.version) : pkg.version
+const version = pkg.version
 
 const outDir = dirname(outfile)
 if (outDir !== '.') {
@@ -135,14 +116,6 @@ const externals = [
 const defines = {
   'process.env.USER_TYPE': JSON.stringify('external'),
   'process.env.CLAUDE_CODE_FORCE_FULL_LOGO': JSON.stringify('true'),
-  ...(dev
-    ? { 'process.env.NODE_ENV': JSON.stringify('development') }
-    : {}),
-  ...(dev
-    ? {
-        'process.env.CLAUDE_CODE_EXPERIMENTAL_BUILD': JSON.stringify('true'),
-      }
-    : {}),
   'process.env.CLAUDE_CODE_VERIFY_PLAN': JSON.stringify('false'),
   'process.env.CCR_FORCE_BUNDLE': JSON.stringify('true'),
   'MACRO.VERSION': JSON.stringify(version),
@@ -154,7 +127,7 @@ const defines = {
     'This reconstructed source snapshot does not include Anthropic internal issue routing.',
   ),
   'MACRO.VERSION_CHANGELOG': JSON.stringify(
-    dev ? getVersionChangelog() : 'https://github.com/Icarus603/my-claude-code',
+    'https://github.com/Icarus603/my-claude-code',
   ),
 } as const
 

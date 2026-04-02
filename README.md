@@ -58,7 +58,7 @@ git clone git@github.com:Icarus603/my-claude-code.git
 cd my-claude-code
 bun install
 bun run build
-./cli
+./dist/cli.js
 ```
 
 ### Option 2: One-line installer
@@ -69,7 +69,7 @@ The installer only works for accounts that already have access to this private r
 curl -fsSL https://raw.githubusercontent.com/Icarus603/my-claude-code/main/install.sh | bash
 ```
 
-The installer checks your system, installs Bun if needed, clones the repo, builds `cli-dev`, and symlinks `my-claude-code` into `~/.local/bin`.
+The installer checks your system, installs Bun if needed, clones the repo, builds `dist/cli.js`, and symlinks `my-claude-code` into `~/.local/bin`.
 
 ---
 
@@ -86,7 +86,7 @@ Use Anthropic directly with either:
 
 ```bash
 export ANTHROPIC_API_KEY="..."
-./cli
+./dist/cli.js
 ```
 
 ### OpenAI Codex
@@ -94,7 +94,7 @@ export ANTHROPIC_API_KEY="..."
 Codex uses OpenAI OAuth through the CLI. Set the provider flag first, then run `/login`.
 
 ```bash
-./cli
+./dist/cli.js
 ```
 
 Inside the CLI:
@@ -124,7 +124,7 @@ Bedrock does not use `/login`. It uses AWS credentials plus provider flags.
 ```bash
 export CLAUDE_CODE_USE_BEDROCK=1
 export AWS_REGION="us-east-1"
-./cli
+./dist/cli.js
 ```
 
 ### Google Vertex AI
@@ -134,7 +134,7 @@ Vertex does not use `/login`. It uses Google Cloud credentials.
 ```bash
 gcloud auth application-default login
 export CLAUDE_CODE_USE_VERTEX=1
-./cli
+./dist/cli.js
 ```
 
 ### Anthropic Foundry
@@ -144,7 +144,7 @@ Foundry does not use `/login`. It uses explicit environment configuration.
 ```bash
 export CLAUDE_CODE_USE_FOUNDRY=1
 export ANTHROPIC_FOUNDRY_API_KEY="..."
-./cli
+./dist/cli.js
 ```
 
 ### Provider Summary
@@ -178,33 +178,30 @@ curl -fsSL https://bun.sh/install | bash
 ```bash
 bun install
 bun run build
-./cli
+./dist/cli.js
 ```
 
-### Other build variants
+### Build output
 
 | Command | Output | Notes |
 |---|---|---|
-| `bun run build` | `./cli` | standard build |
-| `bun run build:dev` | `./cli-dev` | dev-stamped build |
-| `bun run build:dev:full` | `./cli-dev` | enables all currently working experimental flags |
-| `bun run compile` | `./dist/cli` | compile target build |
+| `bun run build` | `./dist/cli.js` | the only supported compiled build |
 | `bun run dev` | source execution | slower startup, no standalone binary |
 
 ### Common usage
 
 ```bash
 # interactive mode
-./cli
+./dist/cli.js
 
 # one-shot prompt
-./cli -p "what files are in this directory?"
+./dist/cli.js -p "what files are in this directory?"
 
 # choose a model explicitly
-./cli --model claude-opus-4-6
+./dist/cli.js --model claude-opus-4-6
 
 # start Codex mode
-./cli
+./dist/cli.js
 ```
 
 ### Selected environment variables
@@ -230,11 +227,11 @@ bun run build
 - [CLAUDE.md](CLAUDE.md): Claude-oriented repo guidance for coding agents
 - [changes.md](changes.md): one-off development notes for the Codex integration work
 
-To build with the currently working experimental bundle:
+The default build already includes this repo's current working feature bundle:
 
 ```bash
-bun run build:dev:full
-./cli-dev
+bun run build
+./dist/cli.js
 ```
 
 To enable specific flags manually:
