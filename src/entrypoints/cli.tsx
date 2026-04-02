@@ -10,6 +10,14 @@ if (typeof MACRO === 'undefined') {
   };
 }
 
+// Isolate config from the official Claude Code installation.
+// Both ~/.claude/ (config dir) and ~/.claude.json (global config) are routed
+// through CLAUDE_CONFIG_DIR. Default to ~/.my-claude-code so settings,
+// teammate models, auth tokens, etc. are fully separate. Users can override
+// by setting CLAUDE_CONFIG_DIR explicitly in their environment.
+// eslint-disable-next-line custom-rules/no-top-level-side-effects, custom-rules/no-process-env-top-level
+process.env.CLAUDE_CONFIG_DIR ??= `${process.env.HOME}/.my-claude-code`;
+
 // Bugfix for corepack auto-pinning, which adds yarnpkg to peoples' package.jsons
 // eslint-disable-next-line custom-rules/no-top-level-side-effects
 process.env.COREPACK_ENABLE_AUTO_PIN = '0';
