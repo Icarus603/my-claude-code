@@ -1,8 +1,8 @@
 <p align="center">
-  <img src="assets/screenshot.png" alt="free-code" width="720" />
+  <img src="assets/screenshot.png" alt="my-claude-code" width="720" />
 </p>
 
-<h1 align="center">free-code</h1>
+<h1 align="center">my-claude-code</h1>
 
 <p align="center">
   Private internal fork and build workspace for a modified Claude Code CLI snapshot.
@@ -26,7 +26,7 @@
 
 ## What This Repository Is
 
-`free-code` is a private working fork of Anthropic's Claude Code CLI snapshot, maintained as an internal repo for personal use and invited collaborators.
+`my-claude-code` is a private working fork of Anthropic's Claude Code CLI snapshot, maintained as an internal repo for personal use and invited collaborators.
 
 This fork is focused on three practical changes:
 
@@ -54,8 +54,8 @@ This README is written for people who already have access to this repository. It
 This is the main supported path and does not depend on raw GitHub access.
 
 ```bash
-git clone git@github.com:Icarus603/free-code.git
-cd free-code
+git clone git@github.com:Icarus603/my-claude-code.git
+cd my-claude-code
 bun install
 bun run build
 ./cli
@@ -66,10 +66,10 @@ bun run build
 The installer only works for accounts that already have access to this private repository.
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/Icarus603/free-code/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/Icarus603/my-claude-code/main/install.sh | bash
 ```
 
-The installer checks your system, installs Bun if needed, clones the repo, builds `cli-dev`, and symlinks `free-code` into `~/.local/bin`.
+The installer checks your system, installs Bun if needed, clones the repo, builds `cli-dev`, and symlinks `my-claude-code` into `~/.local/bin`.
 
 ---
 

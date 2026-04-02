@@ -154,7 +154,7 @@ const defines = {
     'This reconstructed source snapshot does not include Anthropic internal issue routing.',
   ),
   'MACRO.VERSION_CHANGELOG': JSON.stringify(
-    dev ? getVersionChangelog() : 'https://github.com/Icarus603/free-code',
+    dev ? getVersionChangelog() : 'https://github.com/Icarus603/my-claude-code',
   ),
 } as const
 

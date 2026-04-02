@@ -1,22 +1,22 @@
 {
-  "name": "free-code",
+  "name": "my-claude-code",
   "version": "9.99.999",
   "private": true,
-  "description": "The free build of Claude Code for the Icarus603/free-code repository.",
+  "description": "Personal Claude Code build for the Icarus603/my-claude-code repository.",
   "type": "module",
   "packageManager": "bun@1.3.11",
   "bin": {
-    "free-code": "./cli",
+    "my-claude-code": "./cli",
     "claude": "./cli"
   },
   "author": "Icarus603",
-  "homepage": "https://github.com/Icarus603/free-code",
+  "homepage": "https://github.com/Icarus603/my-claude-code",
   "bugs": {
-    "url": "https://github.com/Icarus603/free-code/issues"
+    "url": "https://github.com/Icarus603/my-claude-code/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Icarus603/free-code.git"
+    "url": "git+https://github.com/Icarus603/my-claude-code.git"
   },
   "engines": {
     "bun": ">=1.3.11"

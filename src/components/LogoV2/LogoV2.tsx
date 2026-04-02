@@ -239,8 +239,8 @@ export function LogoV2() {
   }
   const layoutMode = getLayoutMode(columns);
   const userTheme = resolveThemeSetting(getGlobalConfig().theme);
-  const borderTitle = ` ${color("startupAccent", userTheme)("Free Code")} ${color("inactive", userTheme)(`v${version}`)} `;
-  const compactBorderTitle = color("startupAccent", userTheme)(" Free Code ");
+  const borderTitle = ` ${color("startupAccent", userTheme)("Claude Code")} ${color("inactive", userTheme)(`v${version}`)} `;
+  const compactBorderTitle = color("startupAccent", userTheme)(" Claude Code ");
   if (layoutMode === "compact") {
     const cwdAvailableWidth = agentName ? columns - 4 - 1 - stringWidth(agentName) - 3 : columns - 4;
     const truncatedCwd = truncatePath(cwd, Math.max(cwdAvailableWidth, 10));

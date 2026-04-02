@@ -5,7 +5,7 @@ if (typeof MACRO === 'undefined') {
   (globalThis as any).MACRO = {
     VERSION: '9.99.999-dev',
     BUILD_TIME: new Date().toISOString(),
-    PACKAGE_URL: 'free-code',
+    PACKAGE_URL: 'my-claude-code',
     FEEDBACK_CHANNEL: 'github',
   };
 }
