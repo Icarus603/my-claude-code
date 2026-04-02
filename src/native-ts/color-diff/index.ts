@@ -181,7 +181,7 @@ type Theme = {
 
 function defaultSyntaxThemeName(themeName: string): string {
   if (themeName.includes('ansi')) return 'ansi'
-  if (themeName.includes('dark')) return 'Monokai Extended'
+  if (themeName.includes('dark')) return 'Royal Gold Dark'
   return 'GitHub'
 }
 
@@ -212,6 +212,35 @@ const MONOKAI_SCOPES: Record<string, Color> = {
   symbol: rgb(190, 132, 255),
   regexp: rgb(230, 219, 116),
   subst: rgb(248, 248, 242),
+}
+
+// Custom dark theme for the TUI: lower saturation, richer gold accents, and
+// cooler blue-green contrast so code feels more refined on black backgrounds.
+const ROYAL_GOLD_DARK_SCOPES: Record<string, Color> = {
+  keyword: rgb(254, 200, 74),
+  _storage: rgb(135, 195, 255),
+  built_in: rgb(135, 195, 255),
+  type: rgb(135, 195, 255),
+  literal: rgb(224, 164, 88),
+  number: rgb(224, 164, 88),
+  string: rgb(246, 224, 176),
+  title: rgb(235, 200, 141),
+  'title.function': rgb(235, 200, 141),
+  'title.class': rgb(235, 200, 141),
+  'title.class.inherited': rgb(235, 200, 141),
+  params: rgb(243, 240, 232),
+  comment: rgb(139, 125, 107),
+  meta: rgb(139, 125, 107),
+  attr: rgb(135, 195, 255),
+  attribute: rgb(135, 195, 255),
+  variable: rgb(243, 240, 232),
+  'variable.language': rgb(243, 240, 232),
+  property: rgb(243, 240, 232),
+  operator: rgb(231, 185, 76),
+  punctuation: rgb(229, 223, 211),
+  symbol: rgb(224, 164, 88),
+  regexp: rgb(246, 224, 176),
+  subst: rgb(229, 223, 211),
 }
 
 // highlight.js scope → syntect GitHub-light foreground (measured from Rust)
@@ -281,10 +310,10 @@ const ANSI_SCOPES: Record<string, Color> = {
 
 const BRAND_DIFF_RED = rgb(162, 0, 67)
 const BRAND_DIFF_GREEN = rgb(34, 139, 34)
-const BRAND_DIFF_RED_DARK_LINE = rgb(74, 0, 31)
-const BRAND_DIFF_RED_DARK_WORD = rgb(96, 0, 40)
-const BRAND_DIFF_GREEN_DARK_LINE = rgb(20, 54, 20)
-const BRAND_DIFF_GREEN_DARK_WORD = rgb(28, 76, 28)
+const BRAND_DIFF_RED_DARK_LINE = rgb(92, 0, 38)
+const BRAND_DIFF_RED_DARK_WORD = rgb(132, 0, 54)
+const BRAND_DIFF_GREEN_DARK_LINE = rgb(10, 74, 41)
+const BRAND_DIFF_GREEN_DARK_WORD = rgb(16, 110, 60)
 const BRAND_DIFF_RED_LIGHT_LINE = rgb(242, 220, 230)
 const BRAND_DIFF_RED_LIGHT_WORD = rgb(228, 170, 196)
 const BRAND_DIFF_GREEN_LIGHT_LINE = rgb(220, 238, 220)
@@ -337,7 +366,7 @@ function buildTheme(themeName: string, mode: ColorMode): Theme {
       deleteDecoration,
       foreground: fg,
       background: DEFAULT_BG,
-      scopes: MONOKAI_SCOPES,
+      scopes: ROYAL_GOLD_DARK_SCOPES,
     }
   }
 

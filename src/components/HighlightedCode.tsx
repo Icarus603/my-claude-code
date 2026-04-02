@@ -1,7 +1,6 @@
 import { c as _c } from "react/compiler-runtime";
 import * as React from 'react';
 import { memo, useEffect, useMemo, useRef, useState } from 'react';
-import { useSettings } from '../hooks/useSettings.js';
 import { Ansi, Box, type DOMElement, measureElement, NoSelect, Text, useTheme } from '../ink.js';
 import { isFullscreenEnvEnabled } from '../utils/fullscreen.js';
 import sliceAnsi from '../utils/sliceAnsi.js';
@@ -27,14 +26,8 @@ export const HighlightedCode = memo(function HighlightedCode(t0) {
   const ref = useRef(null);
   const [measuredWidth, setMeasuredWidth] = useState(width || DEFAULT_WIDTH);
   const [theme] = useTheme();
-  const settings = useSettings();
-  const syntaxHighlightingDisabled = settings.syntaxHighlightingDisabled ?? false;
   let t2;
   bb0: {
-    if (syntaxHighlightingDisabled) {
-      t2 = null;
-      break bb0;
-    }
     let t3;
     if ($[0] === Symbol.for("react.memo_cache_sentinel")) {
       t3 = expectColorFile();
@@ -120,17 +113,16 @@ export const HighlightedCode = memo(function HighlightedCode(t0) {
   }
   const gutterWidth = t6;
   let t7;
-  if ($[14] !== code || $[15] !== dim || $[16] !== filePath || $[17] !== gutterWidth || $[18] !== lines || $[19] !== syntaxHighlightingDisabled) {
-    t7 = <Box ref={ref}>{lines ? <Box flexDirection="column">{lines.map((line, i) => gutterWidth > 0 ? <CodeLine key={i} line={line} gutterWidth={gutterWidth} /> : <Text key={i}><Ansi>{line}</Ansi></Text>)}</Box> : <HighlightedCodeFallback code={code} filePath={filePath} dim={dim} skipColoring={syntaxHighlightingDisabled} />}</Box>;
+  if ($[14] !== code || $[15] !== dim || $[16] !== filePath || $[17] !== gutterWidth || $[18] !== lines) {
+    t7 = <Box ref={ref}>{lines ? <Box flexDirection="column">{lines.map((line, i) => gutterWidth > 0 ? <CodeLine key={i} line={line} gutterWidth={gutterWidth} /> : <Text key={i}><Ansi>{line}</Ansi></Text>)}</Box> : <HighlightedCodeFallback code={code} filePath={filePath} dim={dim} skipColoring={false} />}</Box>;
     $[14] = code;
     $[15] = dim;
     $[16] = filePath;
     $[17] = gutterWidth;
     $[18] = lines;
-    $[19] = syntaxHighlightingDisabled;
-    $[20] = t7;
+    $[19] = t7;
   } else {
-    t7 = $[20];
+    t7 = $[19];
   }
   return t7;
 });

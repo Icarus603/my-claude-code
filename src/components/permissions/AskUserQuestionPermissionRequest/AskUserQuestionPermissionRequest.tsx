@@ -1,7 +1,6 @@
 import { c as _c } from "react/compiler-runtime";
 import type { Base64ImageSource, ImageBlockParam } from '@anthropic-ai/sdk/resources/messages.mjs';
 import React, { Suspense, use, useCallback, useMemo, useRef, useState } from 'react';
-import { useSettings } from '../../../hooks/useSettings.js';
 import { useTerminalSize } from '../../../hooks/useTerminalSize.js';
 import { stringWidth } from '../../../ink/stringWidth.js';
 import { useTheme } from '../../../ink.js';
@@ -28,26 +27,14 @@ const MIN_CONTENT_WIDTH = 40;
 // Lines used by chrome around the content area (nav bar, title, footer, help text, etc.)
 const CONTENT_CHROME_OVERHEAD = 15;
 export function AskUserQuestionPermissionRequest(props) {
-  const $ = _c(4);
-  const settings = useSettings();
-  if (settings.syntaxHighlightingDisabled) {
-    let t0;
-    if ($[0] !== props) {
-      t0 = <AskUserQuestionPermissionRequestBody {...props} highlight={null} />;
-      $[0] = props;
-      $[1] = t0;
-    } else {
-      t0 = $[1];
-    }
-    return t0;
-  }
+  const $ = _c(2);
   let t0;
-  if ($[2] !== props) {
+  if ($[0] !== props) {
     t0 = <Suspense fallback={<AskUserQuestionPermissionRequestBody {...props} highlight={null} />}><AskUserQuestionWithHighlight {...props} /></Suspense>;
-    $[2] = props;
-    $[3] = t0;
+    $[0] = props;
+    $[1] = t0;
   } else {
-    t0 = $[3];
+    t0 = $[1];
   }
   return t0;
 }

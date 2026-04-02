@@ -187,12 +187,6 @@ export const DEFAULT_BINDINGS: KeybindingBlock[] = [
     },
   },
   {
-    context: 'ThemePicker',
-    bindings: {
-      'ctrl+t': 'theme:toggleSyntaxHighlighting',
-    },
-  },
-  {
     context: 'Scroll',
     bindings: {
       pageup: 'scroll:pageUp',

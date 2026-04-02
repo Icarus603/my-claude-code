@@ -452,10 +452,10 @@ const darkTheme: Theme = {
   claude: BRAND_COLOR,
   startupAccent: BRAND_COLOR,
   claudeShimmer: BRAND_COLOR,
-  claudeBlue_FOR_SYSTEM_SPINNER: 'rgb(147,165,255)', // Blue for system spinner
-  claudeBlueShimmer_FOR_SYSTEM_SPINNER: 'rgb(177,195,255)', // Lighter blue for system spinner shimmer
-  permission: 'rgb(177,185,249)', // Light blue-purple
-  permissionShimmer: 'rgb(207,215,255)', // Lighter blue-purple for shimmer
+  claudeBlue_FOR_SYSTEM_SPINNER: 'rgb(131,210,238)', // Light cyan-blue
+  claudeBlueShimmer_FOR_SYSTEM_SPINNER: 'rgb(177,231,245)', // Lighter cyan-blue for shimmer
+  permission: 'rgb(131,210,238)', // Light cyan-blue
+  permissionShimmer: 'rgb(177,231,245)', // Lighter cyan-blue for shimmer
   planMode: 'rgb(72,150,140)', // Muted sage green
   ide: 'rgb(71,130,200)', // Muted blue
   promptBorder: 'rgb(136,136,136)', // Medium gray
@@ -465,8 +465,8 @@ const darkTheme: Theme = {
   inactive: 'rgb(153,153,153)', // Light gray
   inactiveShimmer: 'rgb(193,193,193)', // Lighter gray for shimmer effect
   subtle: 'rgb(80,80,80)', // Dark gray
-  suggestion: 'rgb(177,185,249)', // Light blue-purple
-  remember: 'rgb(177,185,249)', // Light blue-purple
+  suggestion: 'rgb(131,210,238)', // Light cyan-blue
+  remember: 'rgb(131,210,238)', // Light cyan-blue
   background: 'rgb(0,204,204)', // Bright cyan
   success: BRAND_GREEN,
   error: BRAND_RED,
@@ -502,7 +502,7 @@ const darkTheme: Theme = {
   bashMessageBackgroundColor: 'rgb(65, 60, 65)',
 
   memoryBackgroundColor: 'rgb(55, 65, 70)',
-  rate_limit_fill: 'rgb(177,185,249)', // Light blue-purple
+  rate_limit_fill: 'rgb(131,210,238)', // Light cyan-blue
   rate_limit_empty: 'rgb(80,83,112)', // Medium blue-purple
   fastMode: 'rgb(255,120,20)', // Electric orange for dark bg
   fastModeShimmer: 'rgb(255,165,70)', // Lighter orange for shimmer

@@ -119,8 +119,6 @@ export const KEYBINDING_ACTIONS = [
   'historySearch:execute',
   // Task/agent actions
   'task:background',
-  // Theme picker actions
-  'theme:toggleSyntaxHighlighting',
   // Help menu actions
   'help:dismiss',
   // Attachment navigation (select dialog image attachments)

@@ -1209,9 +1209,6 @@ export function Config({
           useAutoModeDuringPlan?: boolean;
         } | undefined)?.useAutoModeDuringPlan
       } : {}),
-      // ThemePicker's Ctrl+T writes this key directly — include it so the
-      // disk state reverts along with the in-memory AppState.settings restore.
-      syntaxHighlightingDisabled: iu?.syntaxHighlightingDisabled,
       // permissions: the defaultMode onChange (above) spreads the MERGED
       // settingsData.permissions into userSettings — project/policy allow/deny
       // arrays can leak to disk. Spread the full initial snapshot so the

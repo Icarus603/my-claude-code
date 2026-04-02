@@ -1,7 +1,6 @@
 import { c as _c } from "react/compiler-runtime";
 import { marked, type Token, type Tokens } from 'marked';
 import React, { Suspense, use, useMemo, useRef } from 'react';
-import { useSettings } from '../hooks/useSettings.js';
 import { Ansi, Box, useTheme } from '../ink.js';
 import { type CliHighlight, getCliHighlightPromise } from '../utils/cliHighlight.js';
 import { hashContent } from '../utils/hash.js';
@@ -76,26 +75,14 @@ function cachedLexer(content: string): Token[] {
  * - Other content is rendered as ANSI strings via formatToken
  */
 export function Markdown(props) {
-  const $ = _c(4);
-  const settings = useSettings();
-  if (settings.syntaxHighlightingDisabled) {
-    let t0;
-    if ($[0] !== props) {
-      t0 = <MarkdownBody {...props} highlight={null} />;
-      $[0] = props;
-      $[1] = t0;
-    } else {
-      t0 = $[1];
-    }
-    return t0;
-  }
+  const $ = _c(2);
   let t0;
-  if ($[2] !== props) {
+  if ($[0] !== props) {
     t0 = <Suspense fallback={<MarkdownBody {...props} highlight={null} />}><MarkdownWithHighlight {...props} /></Suspense>;
-    $[2] = props;
-    $[3] = t0;
+    $[0] = props;
+    $[1] = t0;
   } else {
-    t0 = $[3];
+    t0 = $[1];
   }
   return t0;
 }
