@@ -496,7 +496,7 @@ const darkTheme: Theme = {
   clawd_body: BRAND_COLOR,
   clawd_background: 'rgb(0,0,0)',
   userMessageBackground: '#0f0f0f',
-  userMessageBackgroundHover: '#0f0f0f',
+  userMessageBackgroundHover: '#101010',
   messageActionsBackground: 'rgb(44, 50, 62)', // cool gray, slight blue
   selectionBg: 'rgb(38, 79, 120)', // classic dark-mode selection blue (VS Code dark default); light fgs stay readable
   bashMessageBackgroundColor: 'rgb(65, 60, 65)',
