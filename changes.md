@@ -1,5 +1,7 @@
 # Codex API Support: Feature Parity & UI Overhaul
 
+This document is a one-off development note for the Codex integration work. It is not the project's canonical changelog or release notes.
+
 ## Summary
 This pull request introduces full feature parity and explicit UI support for the OpenAI Codex backend (`chatgpt.com/backend-api/codex/responses`). The codebase is now entirely backend-agnostic and smoothly transitions between Anthropic Claude and OpenAI Codex schemas based on current authentication, without losing features like reasoning animations, token billing, or multi-modal visual inputs.
 

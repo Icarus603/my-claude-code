@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this private internal repository.
 
 ## Common commands
 
@@ -24,7 +24,11 @@ bun run compile
 bun run dev
 ```
 
-Run the built binary with `./cli` or `./cli-dev`. Set `ANTHROPIC_API_KEY` in the environment or use OAuth via `./cli /login`.
+Run the built binary with `./cli` or `./cli-dev`.
+
+- This repository is private/internal and is documented for the repo owner plus invited collaborators.
+- Use `./cli /login` only for Anthropic OAuth or OpenAI Codex OAuth.
+- Bedrock, Vertex AI, and Foundry use provider-specific credentials instead of `/login`.
 
 ## High-level architecture
 

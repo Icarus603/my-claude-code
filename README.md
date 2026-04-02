@@ -5,354 +5,289 @@
 <h1 align="center">free-code</h1>
 
 <p align="center">
-  <strong>The free build of Claude Code.</strong><br>
-  All telemetry stripped. All guardrails removed. All experimental features unlocked.<br>
-  One binary, zero callbacks home.
+  Private internal fork and build workspace for a modified Claude Code CLI snapshot.
 </p>
-
-<p align="center">
-  <a href="#quick-install"><img src="https://img.shields.io/badge/install-one--liner-blue?style=flat-square" alt="Install" /></a>
-  <a href="https://github.com/Icarus603/free-code/stargazers"><img src="https://img.shields.io/github/stars/Icarus603/free-code?style=flat-square" alt="Stars" /></a>
-  <a href="https://github.com/Icarus603/free-code/issues"><img src="https://img.shields.io/github/issues/Icarus603/free-code?style=flat-square" alt="Issues" /></a>
-  <a href="https://github.com/Icarus603/free-code/blob/main/FEATURES.md"><img src="https://img.shields.io/badge/features-88%20flags-orange?style=flat-square" alt="Feature Flags" /></a>
-  <a href="#ipfs-mirror"><img src="https://img.shields.io/badge/IPFS-mirrored-teal?style=flat-square" alt="IPFS" /></a>
-</p>
-
----
-
-## Quick Install
-
-```bash
-curl -fsSL https://raw.githubusercontent.com/Icarus603/free-code/main/install.sh | bash
-```
-
-Checks your system, installs Bun if needed, clones the repo, builds with all experimental features enabled, and symlinks `free-code` on your PATH.
-
-Then run `free-code` and use the `/login` command to authenticate with your preferred model provider.
 
 ---
 
 ## Table of Contents
 
-- [What is this](#what-is-this)
-- [Model Providers](#model-providers)
-- [Quick Install](#quick-install)
-- [Requirements](#requirements)
-- [Build](#build)
-- [Usage](#usage)
-- [Experimental Features](#experimental-features)
+- [What This Repository Is](#what-this-repository-is)
+- [Current Status](#current-status)
+- [Quick Start](#quick-start)
+- [Authentication and Providers](#authentication-and-providers)
+- [Build and Run](#build-and-run)
+- [Feature Flags and Supporting Docs](#feature-flags-and-supporting-docs)
 - [Project Structure](#project-structure)
-- [Tech Stack](#tech-stack)
-- [IPFS Mirror](#ipfs-mirror)
-- [Contributing](#contributing)
-- [License](#license)
+- [Collaboration](#collaboration)
+- [License and Risk Notice](#license-and-risk-notice)
 
 ---
 
-## What is this
+## What This Repository Is
 
-A clean, buildable fork of Anthropic's [Claude Code](https://docs.anthropic.com/en/docs/claude-code) CLI -- the terminal-native AI coding agent. The upstream source became publicly available on March 31, 2026 through a source map exposure in the npm distribution.
+`free-code` is a private working fork of Anthropic's Claude Code CLI snapshot, maintained as an internal repo for personal use and invited collaborators.
 
-This fork applies three categories of changes on top of that snapshot:
+This fork is focused on three practical changes:
 
-### Telemetry removed
+- telemetry-related behavior is removed or stubbed where possible
+- prompt-layer restrictions added by the CLI wrapper are reduced
+- build-time experimental feature flags are exposed for local builds and testing
 
-The upstream binary phones home through OpenTelemetry/gRPC, GrowthBook analytics, Sentry error reporting, and custom event logging. In this build:
-
-- All outbound telemetry endpoints are dead-code-eliminated or stubbed
-- GrowthBook feature flag evaluation still works locally (needed for runtime feature gates) but does not report back
-- No crash reports, no usage analytics, no session fingerprinting
-
-### Security-prompt guardrails removed
-
-Anthropic injects system-level instructions into every conversation that constrain Claude's behavior beyond what the model itself enforces. These include hardcoded refusal patterns, injected "cyber risk" instruction blocks, and managed-settings security overlays pushed from Anthropic's servers.
-
-This build strips those injections. The model's own safety training still applies -- this just removes the extra layer of prompt-level restrictions that the CLI wraps around it.
-
-### Experimental features unlocked
-
-Claude Code ships with 88 feature flags gated behind `bun:bundle` compile-time switches. Most are disabled in the public npm release. This build unlocks all 54 flags that compile cleanly. See [Experimental Features](#experimental-features) below, or refer to [FEATURES.md](FEATURES.md) for the full audit.
+This README is written for people who already have access to this repository. It is not a public release page.
 
 ---
 
-## Model Providers
+## Current Status
 
-free-code supports **five API providers** out of the box. Set the corresponding environment variable to switch providers -- no code changes needed.
+- Repository visibility: private
+- Primary audience: repo owner and invited collaborators
+- Main workflow: clone locally, install dependencies, build the CLI, then authenticate for the provider you want to use
+- Supporting technical notes live in [FEATURES.md](FEATURES.md), [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), and [changes.md](changes.md)
 
-### Anthropic (Direct API) -- Default
+---
 
-Use Anthropic's first-party API directly.
+## Quick Start
 
-| Model | ID |
-|---|---|
-| Claude Opus 4.6 | `claude-opus-4-6` |
-| Claude Sonnet 4.6 | `claude-sonnet-4-6` |
-| Claude Haiku 4.5 | `claude-haiku-4-5` |
+### Option 1: Clone and build locally
+
+This is the main supported path and does not depend on raw GitHub access.
+
+```bash
+git clone git@github.com:Icarus603/free-code.git
+cd free-code
+bun install
+bun run build
+./cli
+```
+
+### Option 2: One-line installer
+
+The installer only works for accounts that already have access to this private repository.
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Icarus603/free-code/main/install.sh | bash
+```
+
+The installer checks your system, installs Bun if needed, clones the repo, builds `cli-dev`, and symlinks `free-code` into `~/.local/bin`.
+
+---
+
+## Authentication and Providers
+
+This repo supports multiple providers, but they do not all authenticate the same way.
+
+### Anthropic
+
+Use Anthropic directly with either:
+
+- `ANTHROPIC_API_KEY`
+- `/login` for Anthropic OAuth
+
+```bash
+export ANTHROPIC_API_KEY="..."
+./cli
+```
 
 ### OpenAI Codex
 
-Use OpenAI's Codex models for code generation. Requires a Codex subscription.
-
-| Model | ID |
-|---|---|
-| GPT-5.3 Codex (recommended) | `gpt-5.3-codex` |
-| GPT-5.4 | `gpt-5.4` |
-| GPT-5.4 Mini | `gpt-5.4-mini` |
+Codex uses OpenAI OAuth through the CLI. Set the provider flag first, then run `/login`.
 
 ```bash
 export CLAUDE_CODE_USE_OPENAI=1
-free-code
+./cli
 ```
+
+Inside the CLI:
+
+```text
+/login
+```
+
+Then choose the Codex login flow.
+
+Supported model examples:
+
+| Model | ID |
+|---|---|
+| GPT-5.3 Codex | `gpt-5.3-codex` |
+| GPT-5.4 | `gpt-5.4` |
+| GPT-5.4 Mini | `gpt-5.4-mini` |
 
 ### AWS Bedrock
 
-Route requests through your AWS account via Amazon Bedrock.
+Bedrock does not use `/login`. It uses AWS credentials plus provider flags.
 
 ```bash
 export CLAUDE_CODE_USE_BEDROCK=1
-export AWS_REGION="us-east-1"   # or AWS_DEFAULT_REGION
-free-code
+export AWS_REGION="us-east-1"
+./cli
 ```
 
-Uses your standard AWS credentials (environment variables, `~/.aws/config`, or IAM role). Models are mapped to Bedrock ARN format automatically (e.g., `us.anthropic.claude-opus-4-6-v1`).
+### Google Vertex AI
 
-| Variable | Purpose |
-|---|---|
-| `CLAUDE_CODE_USE_BEDROCK` | Enable Bedrock provider |
-| `AWS_REGION` / `AWS_DEFAULT_REGION` | AWS region (default: `us-east-1`) |
-| `ANTHROPIC_BEDROCK_BASE_URL` | Custom Bedrock endpoint |
-| `AWS_BEARER_TOKEN_BEDROCK` | Bearer token auth |
-| `CLAUDE_CODE_SKIP_BEDROCK_AUTH` | Skip auth (testing) |
-
-### Google Cloud Vertex AI
-
-Route requests through your GCP project via Vertex AI.
+Vertex does not use `/login`. It uses Google Cloud credentials.
 
 ```bash
+gcloud auth application-default login
 export CLAUDE_CODE_USE_VERTEX=1
-free-code
+./cli
 ```
-
-Uses Google Cloud Application Default Credentials (`gcloud auth application-default login`). Models are mapped to Vertex format automatically (e.g., `claude-opus-4-6@latest`).
 
 ### Anthropic Foundry
 
-Use Anthropic Foundry for dedicated deployments.
+Foundry does not use `/login`. It uses explicit environment configuration.
 
 ```bash
 export CLAUDE_CODE_USE_FOUNDRY=1
 export ANTHROPIC_FOUNDRY_API_KEY="..."
-free-code
+./cli
 ```
 
-Supports custom deployment IDs as model names.
+### Provider Summary
 
-### Provider Selection Summary
-
-| Provider | Env Variable | Auth Method |
+| Provider | Selection | Authentication |
 |---|---|---|
-| Anthropic (default) | -- | `ANTHROPIC_API_KEY` or OAuth |
-| OpenAI Codex | `CLAUDE_CODE_USE_OPENAI=1` | OAuth via OpenAI |
+| Anthropic | default | `ANTHROPIC_API_KEY` or Anthropic `/login` |
+| OpenAI Codex | `CLAUDE_CODE_USE_OPENAI=1` | OpenAI `/login` |
 | AWS Bedrock | `CLAUDE_CODE_USE_BEDROCK=1` | AWS credentials |
-| Google Vertex AI | `CLAUDE_CODE_USE_VERTEX=1` | `gcloud` ADC |
+| Google Vertex AI | `CLAUDE_CODE_USE_VERTEX=1` | Google ADC |
 | Anthropic Foundry | `CLAUDE_CODE_USE_FOUNDRY=1` | `ANTHROPIC_FOUNDRY_API_KEY` |
 
 ---
 
-## Requirements
+## Build and Run
 
-- **Runtime**: [Bun](https://bun.sh) >= 1.3.11
-- **OS**: macOS or Linux (Windows via WSL)
-- **Auth**: An API key or OAuth login for your chosen provider
+### Requirements
+
+- Bun `>= 1.3.11`
+- macOS or Linux
+- valid credentials for whichever provider you plan to use
+
+Install Bun if needed:
 
 ```bash
-# Install Bun if you don't have it
 curl -fsSL https://bun.sh/install | bash
 ```
 
----
-
-## Build
+### Standard build
 
 ```bash
-git clone https://github.com/Icarus603/free-code.git
-cd free-code
-bun build
+bun install
+bun run build
 ./cli
 ```
 
-### Build Variants
+### Other build variants
 
-| Command | Output | Features | Description |
-|---|---|---|---|
-| `bun run build` | `./cli` | `VOICE_MODE` only | Production-like binary |
-| `bun run build:dev` | `./cli-dev` | `VOICE_MODE` only | Dev version stamp |
-| `bun run build:dev:full` | `./cli-dev` | All 54 experimental flags | Full unlock build |
-| `bun run compile` | `./dist/cli` | `VOICE_MODE` only | Alternative output path |
+| Command | Output | Notes |
+|---|---|---|
+| `bun run build` | `./cli` | standard build |
+| `bun run build:dev` | `./cli-dev` | dev-stamped build |
+| `bun run build:dev:full` | `./cli-dev` | enables all currently working experimental flags |
+| `bun run compile` | `./dist/cli` | compile target build |
+| `bun run dev` | source execution | slower startup, no standalone binary |
 
-### Custom Feature Flags
-
-Enable specific flags without the full bundle:
-
-```bash
-# Enable just ultraplan and ultrathink
-bun run ./scripts/build.ts --feature=ULTRAPLAN --feature=ULTRATHINK
-
-# Add a flag on top of the dev build
-bun run ./scripts/build.ts --dev --feature=BRIDGE_MODE
-```
-
----
-
-## Usage
+### Common usage
 
 ```bash
-# Interactive REPL (default)
+# interactive mode
 ./cli
 
-# One-shot mode
+# one-shot prompt
 ./cli -p "what files are in this directory?"
 
-# Specify a model
+# choose a model explicitly
 ./cli --model claude-opus-4-6
 
-# Run from source (slower startup)
-bun run dev
-
-# OAuth login
-./cli /login
+# start Codex mode
+CLAUDE_CODE_USE_OPENAI=1 ./cli
 ```
 
-### Environment Variables Reference
+### Selected environment variables
 
 | Variable | Purpose |
 |---|---|
 | `ANTHROPIC_API_KEY` | Anthropic API key |
-| `ANTHROPIC_AUTH_TOKEN` | Auth token (alternative) |
-| `ANTHROPIC_MODEL` | Override default model |
-| `ANTHROPIC_BASE_URL` | Custom API endpoint |
-| `ANTHROPIC_DEFAULT_OPUS_MODEL` | Custom Opus model ID |
-| `ANTHROPIC_DEFAULT_SONNET_MODEL` | Custom Sonnet model ID |
-| `ANTHROPIC_DEFAULT_HAIKU_MODEL` | Custom Haiku model ID |
-| `CLAUDE_CODE_OAUTH_TOKEN` | OAuth token via env |
-| `CLAUDE_CODE_API_KEY_HELPER_TTL_MS` | API key helper cache TTL |
+| `ANTHROPIC_AUTH_TOKEN` | alternative Anthropic auth token |
+| `ANTHROPIC_MODEL` | override default Anthropic model |
+| `ANTHROPIC_BASE_URL` | custom Anthropic-compatible endpoint |
+| `CLAUDE_CODE_USE_OPENAI` | switch to OpenAI Codex backend |
+| `CLAUDE_CODE_USE_BEDROCK` | switch to AWS Bedrock |
+| `CLAUDE_CODE_USE_VERTEX` | switch to Google Vertex AI |
+| `CLAUDE_CODE_USE_FOUNDRY` | switch to Anthropic Foundry |
+| `CLAUDE_CODE_OAUTH_TOKEN` | OAuth token provided via environment |
 
 ---
 
-## Experimental Features
+## Feature Flags and Supporting Docs
 
-The `bun run build:dev:full` build enables all 54 working feature flags. Highlights:
+- [FEATURES.md](FEATURES.md): technical audit of compile-time feature flags in this snapshot
+- [AGENTS.md](AGENTS.md): Codex-oriented repo guidance for coding agents
+- [CLAUDE.md](CLAUDE.md): Claude-oriented repo guidance for coding agents
+- [changes.md](changes.md): one-off development notes for the Codex integration work
 
-### Interaction & UI
+To build with the currently working experimental bundle:
 
-| Flag | Description |
-|---|---|
-| `ULTRAPLAN` | Remote multi-agent planning on Claude Code web (Opus-class) |
-| `ULTRATHINK` | Deep thinking mode -- type "ultrathink" to boost reasoning effort |
-| `VOICE_MODE` | Push-to-talk voice input and dictation |
-| `TOKEN_BUDGET` | Token budget tracking and usage warnings |
-| `HISTORY_PICKER` | Interactive prompt history picker |
-| `MESSAGE_ACTIONS` | Message action entrypoints in the UI |
-| `QUICK_SEARCH` | Prompt quick-search |
-| `SHOT_STATS` | Shot-distribution stats |
+```bash
+bun run build:dev:full
+./cli-dev
+```
 
-### Agents, Memory & Planning
+To enable specific flags manually:
 
-| Flag | Description |
-|---|---|
-| `BUILTIN_EXPLORE_PLAN_AGENTS` | Built-in explore/plan agent presets |
-| `VERIFICATION_AGENT` | Verification agent for task validation |
-| `AGENT_TRIGGERS` | Local cron/trigger tools for background automation |
-| `AGENT_TRIGGERS_REMOTE` | Remote trigger tool path |
-| `EXTRACT_MEMORIES` | Post-query automatic memory extraction |
-| `COMPACTION_REMINDERS` | Smart reminders around context compaction |
-| `CACHED_MICROCOMPACT` | Cached microcompact state through query flows |
-| `TEAMMEM` | Team-memory files and watcher hooks |
-
-### Tools & Infrastructure
-
-| Flag | Description |
-|---|---|
-| `BRIDGE_MODE` | IDE remote-control bridge (VS Code, JetBrains) |
-| `BASH_CLASSIFIER` | Classifier-assisted bash permission decisions |
-| `PROMPT_CACHE_BREAK_DETECTION` | Cache-break detection in compaction/query flow |
-
-See [FEATURES.md](FEATURES.md) for the complete audit of all 88 flags, including 34 broken flags with reconstruction notes.
+```bash
+bun run ./scripts/build.ts --feature=ULTRAPLAN --feature=ULTRATHINK
+```
 
 ---
 
 ## Project Structure
 
-```
+```text
 scripts/
-  build.ts                # Build script with feature flag system
+  build.ts                build script and feature flag bundler
 
 src/
-  entrypoints/cli.tsx     # CLI entrypoint
-  commands.ts             # Command registry (slash commands)
-  tools.ts                # Tool registry (agent tools)
-  QueryEngine.ts          # LLM query engine
-  screens/REPL.tsx        # Main interactive UI (Ink/React)
+  entrypoints/cli.tsx     CLI entrypoint
+  commands.ts             slash command registry
+  tools.ts                tool registry
+  QueryEngine.ts          message and tool orchestration
 
-  commands/               # /slash command implementations
-  tools/                  # Agent tool implementations (Bash, Read, Edit, etc.)
-  components/             # Ink/React terminal UI components
-  hooks/                  # React hooks
-  services/               # API clients, MCP, OAuth, analytics
-    api/                  # API client + Codex fetch adapter
-    oauth/                # OAuth flows (Anthropic + OpenAI)
-  state/                  # App state store
-  utils/                  # Utilities
-    model/                # Model configs, providers, validation
-  skills/                 # Skill system
-  plugins/                # Plugin system
-  bridge/                 # IDE bridge
-  voice/                  # Voice input
-  tasks/                  # Background task management
+  commands/               slash command implementations
+  tools/                  tool implementations
+  components/             Ink/React terminal UI
+  hooks/                  React hooks
+  services/               API, OAuth, MCP, analytics integrations
+  state/                  application state
+  skills/                 skill system
+  plugins/                plugin system
+  bridge/                 IDE bridge
+  voice/                  voice support
+  tasks/                  background task management
 ```
 
 ---
 
-## Tech Stack
+## Collaboration
 
-| | |
-|---|---|
-| **Runtime** | [Bun](https://bun.sh) |
-| **Language** | TypeScript |
-| **Terminal UI** | React + [Ink](https://github.com/vadimdemedes/ink) |
-| **CLI Parsing** | [Commander.js](https://github.com/tj/commander.js) |
-| **Schema Validation** | Zod v4 |
-| **Code Search** | ripgrep (bundled) |
-| **Protocols** | MCP, LSP |
-| **APIs** | Anthropic Messages, OpenAI Codex, AWS Bedrock, Google Vertex AI |
+This repository is not set up like a public open source project.
 
----
+If you already have write access:
 
-## IPFS Mirror
+1. Create a branch from `main`.
+2. Make and validate your changes locally.
+3. Push your branch to this repository.
+4. Open a pull request against `main`.
 
-A full copy of this repository is permanently pinned on IPFS via Filecoin:
+If you do not have access, do not assume the public fork-and-PR workflow applies here.
 
-| | |
-|---|---|
-| **CID** | `bafybeiegvef3dt24n2znnnmzcud2vxat7y7rl5ikz7y7yoglxappim54bm` |
-| **Gateway** | https://w3s.link/ipfs/bafybeiegvef3dt24n2znnnmzcud2vxat7y7rl5ikz7y7yoglxappim54bm |
-
-If this repo gets taken down, the code lives on.
+If you are working on feature restoration, read [FEATURES.md](FEATURES.md) first because it contains the current compile status and caveats for many flags.
 
 ---
 
-## Contributing
+## License and Risk Notice
 
-Contributions are welcome. If you're working on restoring one of the 34 broken feature flags, check the reconstruction notes in [FEATURES.md](FEATURES.md) first -- many are close to compiling and just need a small wrapper or missing asset.
+This repository does not currently include a standalone `LICENSE` file, and this README should not be read as granting one.
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feat/my-feature`)
-3. Commit your changes (`git commit -m 'feat: add something'`)
-4. Push to the branch (`git push origin feat/my-feature`)
-5. Open a Pull Request
-
----
-
-## License
-
-The original Claude Code source is the property of Anthropic. This fork exists because the source was publicly exposed through their npm distribution. Use at your own discretion.
+The upstream Claude Code source and related rights belong to Anthropic. This repo is maintained as a private internal workspace around a source snapshot and related modifications. Use, sharing, and redistribution should be treated as restricted unless and until an explicit license is added.

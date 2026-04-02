@@ -2,6 +2,8 @@
 
 Audit date: 2026-03-31
 
+This document is a technical snapshot audit for this repository. It is meant as engineering reference, not as product or release documentation.
+
 This repository currently references 88 `feature('FLAG')` compile-time flags.
 I re-checked them by bundling the CLI once per flag on top of the current
 external-build defines and externals. Result:
