@@ -154,10 +154,10 @@ export function generateHeatmap(
   lines.push(
     '    Less ' +
       [
-        claudeOrange('░'),
-        claudeOrange('▒'),
-        claudeOrange('▓'),
-        claudeOrange('█'),
+        brandHeatmapColor('░'),
+        brandHeatmapColor('▒'),
+        brandHeatmapColor('▓'),
+        brandHeatmapColor('█'),
       ].join(' ') +
       ' More',
   )
@@ -177,21 +177,21 @@ function getIntensity(
   return 1
 }
 
-// Claude orange color (hex #da7756)
-const claudeOrange = chalk.hex('#da7756')
+// Brand color used for /stats heatmap intensity cells
+const brandHeatmapColor = chalk.hex('#58BEFF')
 
 function getHeatmapChar(intensity: number): string {
   switch (intensity) {
     case 0:
       return chalk.gray('·')
     case 1:
-      return claudeOrange('░')
+      return brandHeatmapColor('░')
     case 2:
-      return claudeOrange('▒')
+      return brandHeatmapColor('▒')
     case 3:
-      return claudeOrange('▓')
+      return brandHeatmapColor('▓')
     case 4:
-      return claudeOrange('█')
+      return brandHeatmapColor('█')
     default:
       return chalk.gray('·')
   }

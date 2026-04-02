@@ -15,11 +15,6 @@ type Props = {
   shimmerColor: keyof Theme;
   stalledIntensity?: number;
 };
-const ERROR_RED = {
-  r: 171,
-  g: 43,
-  b: 63
-};
 export function GlimmerMessage(t0) {
   const $ = _c(75);
   const {
@@ -31,12 +26,11 @@ export function GlimmerMessage(t0) {
     shimmerColor,
     stalledIntensity: t1
   } = t0;
-  const stalledIntensity = t1 === undefined ? 0 : t1;
   const [themeName] = useTheme();
   let messageWidth;
   let segments;
   let t2;
-  if ($[0] !== flashOpacity || $[1] !== message || $[2] !== messageColor || $[3] !== mode || $[4] !== shimmerColor || $[5] !== stalledIntensity || $[6] !== themeName) {
+  if ($[0] !== flashOpacity || $[1] !== message || $[2] !== messageColor || $[3] !== mode || $[4] !== shimmerColor || $[5] !== themeName) {
     t2 = Symbol.for("react.early_return_sentinel");
     bb0: {
       const theme = getTheme(themeName);
@@ -82,53 +76,6 @@ export function GlimmerMessage(t0) {
       } = t4);
       if (!message) {
         t2 = null;
-        break bb0;
-      }
-      if (stalledIntensity > 0) {
-        const baseColorStr = theme[messageColor];
-        const baseRGB = baseColorStr ? parseRGB(baseColorStr) : null;
-        if (baseRGB) {
-          const interpolated = interpolateColor(baseRGB, ERROR_RED, stalledIntensity);
-          const color = toRGBColor(interpolated);
-          let t5;
-          if ($[17] !== color) {
-            t5 = <Text color={color}> </Text>;
-            $[17] = color;
-            $[18] = t5;
-          } else {
-            t5 = $[18];
-          }
-          t2 = <><Text color={color}>{message}</Text>{t5}</>;
-          break bb0;
-        }
-        const color_0 = stalledIntensity > 0.5 ? "error" : messageColor;
-        let t5;
-        if ($[19] !== color_0 || $[20] !== message) {
-          t5 = <Text color={color_0}>{message}</Text>;
-          $[19] = color_0;
-          $[20] = message;
-          $[21] = t5;
-        } else {
-          t5 = $[21];
-        }
-        let t6;
-        if ($[22] !== color_0) {
-          t6 = <Text color={color_0}> </Text>;
-          $[22] = color_0;
-          $[23] = t6;
-        } else {
-          t6 = $[23];
-        }
-        let t7;
-        if ($[24] !== t5 || $[25] !== t6) {
-          t7 = <>{t5}{t6}</>;
-          $[24] = t5;
-          $[25] = t6;
-          $[26] = t7;
-        } else {
-          t7 = $[26];
-        }
-        t2 = t7;
         break bb0;
       }
       if (mode === "tool-use") {
@@ -195,15 +142,14 @@ export function GlimmerMessage(t0) {
     $[2] = messageColor;
     $[3] = mode;
     $[4] = shimmerColor;
-    $[5] = stalledIntensity;
-    $[6] = themeName;
-    $[7] = messageWidth;
-    $[8] = segments;
-    $[9] = t2;
+    $[5] = themeName;
+    $[6] = messageWidth;
+    $[7] = segments;
+    $[8] = t2;
   } else {
-    messageWidth = $[7];
-    segments = $[8];
-    t2 = $[9];
+    messageWidth = $[6];
+    segments = $[7];
+    t2 = $[8];
   }
   if (t2 !== Symbol.for("react.early_return_sentinel")) {
     return t2;

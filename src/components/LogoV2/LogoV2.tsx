@@ -4,12 +4,10 @@ import * as React from 'react';
 import { Box, Text, color } from '../../ink.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { stringWidth } from '../../ink/stringWidth.js';
-import { getLayoutMode, calculateLayoutDimensions, calculateOptimalLeftWidth, formatWelcomeMessage, truncatePath, getRecentActivitySync, getRecentReleaseNotesSync, getLogoDisplayData } from '../../utils/logoV2Utils.js';
+import { getLayoutMode, calculateLayoutDimensions, calculateOptimalLeftWidth, truncatePath, getLogoDisplayData } from '../../utils/logoV2Utils.js';
 import { truncate } from '../../utils/format.js';
 import { getDisplayPath } from '../../utils/file.js';
 import { Clawd } from './Clawd.js';
-import { FeedColumn } from './FeedColumn.js';
-import { createRecentActivityFeed, createWhatsNewFeed, createProjectOnboardingFeed, createGuestPassesFeed } from './feedConfigs.js';
 import { getGlobalConfig, saveGlobalConfig } from 'src/utils/config.js';
 import { resolveThemeSetting } from 'src/utils/systemTheme.js';
 import { getInitialSettings } from 'src/utils/settings/settings.js';
@@ -46,7 +44,6 @@ import { renderModelSetting } from '../../utils/model/model.js';
 const LEFT_PANEL_MAX_WIDTH = 50;
 export function LogoV2() {
   const $ = _c(94);
-  const activities = getRecentActivitySync();
   const username = getGlobalConfig().oauthAccount?.displayName ?? "";
   const {
     columns
@@ -72,12 +69,6 @@ export function LogoV2() {
   const agent = useAppState(_temp);
   const effortValue = useAppState(_temp2);
   const config = getGlobalConfig();
-  let changelog;
-  try {
-    changelog = getRecentReleaseNotesSync(3, MACRO.VERSION, config.lastReleaseNotesSeen);
-  } catch {
-    changelog = [];
-  }
   const [announcement] = useState(() => {
     const announcements = getInitialSettings().companyAnnouncements;
     if (!announcements || announcements.length === 0) {
@@ -251,17 +242,6 @@ export function LogoV2() {
   const borderTitle = ` ${color("startupAccent", userTheme)("Free Code")} ${color("inactive", userTheme)(`v${version}`)} `;
   const compactBorderTitle = color("startupAccent", userTheme)(" Free Code ");
   if (layoutMode === "compact") {
-    let welcomeMessage = formatWelcomeMessage(username);
-    if (stringWidth(welcomeMessage) > columns - 4) {
-      let t11;
-      if ($[31] === Symbol.for("react.memo_cache_sentinel")) {
-        t11 = formatWelcomeMessage(null);
-        $[31] = t11;
-      } else {
-        t11 = $[31];
-      }
-      welcomeMessage = t11;
-    }
     const cwdAvailableWidth = agentName ? columns - 4 - 1 - stringWidth(agentName) - 3 : columns - 4;
     const truncatedCwd = truncatePath(cwd, Math.max(cwdAvailableWidth, 10));
     let t11;
@@ -326,17 +306,15 @@ export function LogoV2() {
       t18 = $[42];
       t19 = $[43];
     }
-    return <><OffscreenFreeze><Box flexDirection="column" borderStyle="round" borderColor="startupAccent" borderText={t11} paddingX={1} paddingY={1} alignItems="center" width={columns}><Text bold={true}>{welcomeMessage}</Text>{t12}{t13}<Text dimColor={true}>{billingType}</Text><Text dimColor={true}>{agentName ? `@${agentName} · ${truncatedCwd}` : truncatedCwd}</Text></Box></OffscreenFreeze>{t14}{t15}{t16}{t17}{t18}{t19}</>;
+    return <><OffscreenFreeze><Box flexDirection="column" borderStyle="round" borderColor="startupAccent" borderText={t11} paddingX={1} paddingY={1} alignItems="center" width={columns}>{t12}{t13}<Text dimColor={true}>{agentName ? `@${agentName} · ${truncatedCwd}` : truncatedCwd}</Text></Box></OffscreenFreeze>{t14}{t15}{t16}{t17}{t18}{t19}</>;
   }
-  const welcomeMessage_0 = formatWelcomeMessage(username);
-  const modelLine = !process.env.IS_DEMO && config.oauthAccount?.organizationName ? `${modelDisplayName} · ${billingType} · ${config.oauthAccount.organizationName}` : `${modelDisplayName} · ${billingType}`;
+  const modelLine = modelDisplayName;
   const cwdAvailableWidth_0 = agentName ? LEFT_PANEL_MAX_WIDTH - 1 - stringWidth(agentName) - 3 : LEFT_PANEL_MAX_WIDTH;
   const truncatedCwd_0 = truncatePath(cwd, Math.max(cwdAvailableWidth_0, 10));
   const cwdLine = agentName ? `@${agentName} · ${truncatedCwd_0}` : truncatedCwd_0;
-  const optimalLeftWidth = calculateOptimalLeftWidth(welcomeMessage_0, cwdLine, modelLine);
+  const optimalLeftWidth = calculateOptimalLeftWidth('', cwdLine, modelLine);
   const {
-    leftWidth,
-    rightWidth
+    leftWidth
   } = calculateLayoutDimensions(columns, layoutMode, optimalLeftWidth);
   const T0 = OffscreenFreeze;
   const T1 = Box;
@@ -360,17 +338,10 @@ export function LogoV2() {
   const t15 = layoutMode === "horizontal" ? "row" : "column";
   const t16 = 1;
   const t17 = 1;
-  let t18;
-  if ($[46] !== welcomeMessage_0) {
-    t18 = <Box marginTop={1}><Text bold={true}>{welcomeMessage_0}</Text></Box>;
-    $[46] = welcomeMessage_0;
-    $[47] = t18;
-  } else {
-    t18 = $[47];
-  }
+  const t18 = null;
   let t19;
   if ($[48] === Symbol.for("react.memo_cache_sentinel")) {
-    t19 = <Clawd />;
+    t19 = <Box marginTop={1} marginBottom={0}><Clawd /></Box>;
     $[48] = t19;
   } else {
     t19 = $[48];
@@ -402,7 +373,7 @@ export function LogoV2() {
   }
   let t23;
   if ($[56] !== leftWidth || $[57] !== t18 || $[58] !== t22) {
-    t23 = <Box flexDirection="column" width={leftWidth} justifyContent="space-between" alignItems="center" minHeight={9}>{t18}{t19}{t22}</Box>;
+    t23 = <Box flexDirection="column" width={leftWidth} justifyContent="flex-start" alignItems="center" minHeight={6}>{t18}{t19}{t22}</Box>;
     $[56] = leftWidth;
     $[57] = t18;
     $[58] = t22;
@@ -410,15 +381,8 @@ export function LogoV2() {
   } else {
     t23 = $[59];
   }
-  let t24;
-  if ($[60] !== layoutMode) {
-    t24 = layoutMode === "horizontal" && <Box height="100%" borderStyle="single" borderColor="startupAccent" borderDimColor={true} borderTop={false} borderBottom={false} borderLeft={false} />;
-    $[60] = layoutMode;
-    $[61] = t24;
-  } else {
-    t24 = $[61];
-  }
-  const t25 = layoutMode === "horizontal" && <FeedColumn feeds={showOnboarding ? [createProjectOnboardingFeed(getSteps()), createRecentActivityFeed(activities)] : showGuestPassesUpsell ? [createRecentActivityFeed(activities), createGuestPassesFeed()] : showOverageCreditUpsell ? [createRecentActivityFeed(activities), createOverageCreditFeed()] : [createRecentActivityFeed(activities), createWhatsNewFeed(changelog)]} maxWidth={rightWidth} />;
+  const t24 = null;
+  const t25 = null;
   let t26;
   if ($[62] !== T2 || $[63] !== t15 || $[64] !== t23 || $[65] !== t24 || $[66] !== t25) {
     t26 = <T2 flexDirection={t15} paddingX={t16} gap={t17}>{t23}{t24}{t25}</T2>;

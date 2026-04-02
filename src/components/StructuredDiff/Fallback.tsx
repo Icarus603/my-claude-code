@@ -259,8 +259,8 @@ function generateWordDiffElements(item: DiffLine, width: number, maxWidth: numbe
 
   // Calculate available width for content
   const diffPrefix = type === 'add' ? '+' : '-';
-  const diffPrefixWidth = diffPrefix.length;
-  const availableContentWidth = Math.max(1, width - maxWidth - 1 - diffPrefixWidth);
+  const gutterWidth = maxWidth + 2;
+  const availableContentWidth = Math.max(1, width - gutterWidth);
 
   // Manually wrap the word diff parts with better space efficiency
   const wrappedLines: {
@@ -330,19 +330,23 @@ function generateWordDiffElements(item: DiffLine, width: number, maxWidth: numbe
     const lineNum = lineIndex === 0 ? i : undefined;
     const lineNumStr = (lineNum !== undefined ? lineNum.toString().padStart(maxWidth) : ' '.repeat(maxWidth)) + ' ';
     // Calculate padding to fill the entire terminal width
-    const usedWidth = lineNumStr.length + diffPrefixWidth + contentWidth;
+    const usedWidth = gutterWidth + contentWidth;
     const padding = Math.max(0, width - usedWidth);
     return <Box key={key} flexDirection="row">
-        <NoSelect fromLeftEdge>
+        <Box width={gutterWidth} flexShrink={0}>
+          <NoSelect fromLeftEdge>
+            <Text color={overrideTheme ? 'text' : undefined} backgroundColor={lineBgColor} dimColor={dim}>
+              {lineNumStr}
+              {diffPrefix}
+            </Text>
+          </NoSelect>
+        </Box>
+        <Box width={Math.max(1, width - gutterWidth)} flexGrow={1}>
           <Text color={overrideTheme ? 'text' : undefined} backgroundColor={lineBgColor} dimColor={dim}>
-            {lineNumStr}
-            {diffPrefix}
+            {content}
+            {' '.repeat(padding)}
           </Text>
-        </NoSelect>
-        <Text color={overrideTheme ? 'text' : undefined} backgroundColor={lineBgColor} dimColor={dim}>
-          {content}
-          {' '.repeat(padding)}
-        </Text>
+        </Box>
       </Box>;
   });
 }
@@ -388,8 +392,8 @@ function formatDiff(lines: string[], startingLineNumber: number, width: number, 
 
     // Standard rendering for lines without word diffing or as fallback
     // Calculate available width accounting for line number + space + diff prefix
-    const diffPrefixWidth = 2; // "  " for unchanged, "+ " or "- " for changes
-    const availableContentWidth = Math.max(1, safeWidth - maxWidth - 1 - diffPrefixWidth); // -1 for space after line number
+    const gutterWidth = maxWidth + 2;
+    const availableContentWidth = Math.max(1, safeWidth - gutterWidth);
     const wrappedText = wrapText(code, availableContentWidth, 'wrap');
     const wrappedLines = wrappedText.split('\n');
     return wrappedLines.map((line, lineIndex) => {
@@ -398,24 +402,28 @@ function formatDiff(lines: string[], startingLineNumber: number, width: number, 
       const lineNumStr = (lineNum !== undefined ? lineNum.toString().padStart(maxWidth) : ' '.repeat(maxWidth)) + ' ';
       const sigil = type === 'add' ? '+' : type === 'remove' ? '-' : ' ';
       // Calculate padding to fill the entire terminal width
-      const contentWidth = lineNumStr.length + 1 + stringWidth(line); // lineNum + sigil + code
-      const padding = Math.max(0, safeWidth - contentWidth);
+      const contentWidth = stringWidth(line);
+      const padding = Math.max(0, safeWidth - gutterWidth - contentWidth);
       const bgColor = type === 'add' ? dim ? 'diffAddedDimmed' : 'diffAdded' : type === 'remove' ? dim ? 'diffRemovedDimmed' : 'diffRemoved' : undefined;
 
       // Gutter (line number + sigil) is wrapped in <NoSelect> so fullscreen
       // text selection yields clean code. bgColor carries across both boxes
       // so the visual continuity (solid red/green bar) is unchanged.
       return <Box key={key} flexDirection="row">
-          <NoSelect fromLeftEdge>
-            <Text color={overrideTheme ? 'text' : undefined} backgroundColor={bgColor} dimColor={dim || type === 'nochange'}>
-              {lineNumStr}
-              {sigil}
+          <Box width={gutterWidth} flexShrink={0}>
+            <NoSelect fromLeftEdge>
+              <Text color={overrideTheme ? 'text' : undefined} backgroundColor={bgColor} dimColor={dim || type === 'nochange'}>
+                {lineNumStr}
+                {sigil}
+              </Text>
+            </NoSelect>
+          </Box>
+          <Box width={Math.max(1, safeWidth - gutterWidth)} flexGrow={1}>
+            <Text color={overrideTheme ? 'text' : undefined} backgroundColor={bgColor} dimColor={dim}>
+              {line}
+              {' '.repeat(padding)}
             </Text>
-          </NoSelect>
-          <Text color={overrideTheme ? 'text' : undefined} backgroundColor={bgColor} dimColor={dim}>
-            {line}
-            {' '.repeat(padding)}
-          </Text>
+          </Box>
         </Box>;
     });
   });
