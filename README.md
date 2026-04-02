@@ -1,7 +1,3 @@
-<p align="center">
-  <img src="assets/screenshot.png" alt="my-claude-code" width="720" />
-</p>
-
 <h1 align="center">my-claude-code</h1>
 
 <p align="center">
