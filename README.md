@@ -4,6 +4,10 @@
   Private internal fork and build workspace for a modified Claude Code CLI snapshot.
 </p>
 
+<p align="center">
+  <img src="assets/demo.png" alt="my-claude-code demo" width="800">
+</p>
+
 ---
 
 ## Table of Contents
