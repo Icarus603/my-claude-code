@@ -192,7 +192,7 @@ async function fetchCodexUtilization(): Promise<Utilization | null> {
 }
 
 export async function fetchUtilization(): Promise<Utilization | null> {
-  if (getAPIProvider() === 'openai' && isCodexSubscriber()) {
+  if (isCodexSubscriber()) {
     return fetchCodexUtilization()
   }
 
@@ -225,4 +225,58 @@ export async function fetchUtilization(): Promise<Utilization | null> {
   })
 
   return response.data
+}
+
+/**
+ * Fetches utilization data for all authenticated providers.
+ * Returns separate data for Claude AI and Codex when both are logged in.
+ */
+export async function fetchAllProvidersUtilization(): Promise<{
+  claude: Utilization | null
+  codex: Utilization | null
+}> {
+  const result: {
+    claude: Utilization | null
+    codex: Utilization | null
+  } = {
+    claude: null,
+    codex: null,
+  }
+
+  // Fetch Codex utilization if subscribed
+  if (isCodexSubscriber()) {
+    try {
+      result.codex = await fetchCodexUtilization()
+    } catch (err) {
+      console.error('[usage] Failed to fetch Codex utilization:', err)
+    }
+  }
+
+  // Fetch Claude AI utilization if subscribed
+  if (isClaudeAISubscriber() && hasProfileScope()) {
+    try {
+      // Skip API call if OAuth token is expired
+      const tokens = getClaudeAIOAuthTokens()
+      if (tokens && !isOAuthTokenExpired(tokens.expiresAt)) {
+        const authResult = getAuthHeaders()
+        if (!authResult.error) {
+          const headers = {
+            'Content-Type': 'application/json',
+            'User-Agent': getClaudeCodeUserAgent(),
+            ...authResult.headers,
+          }
+          const url = `${getOauthConfig().BASE_API_URL}/api/oauth/usage`
+          const response = await axios.get<Utilization>(url, {
+            headers,
+            timeout: 5000,
+          })
+          result.claude = response.data
+        }
+      }
+    } catch (err) {
+      console.error('[usage] Failed to fetch Claude utilization:', err)
+    }
+  }
+
+  return result
 }
