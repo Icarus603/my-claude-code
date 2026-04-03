@@ -347,7 +347,7 @@ export function FullscreenLayout(t0) {
     } else {
       t8 = $[8];
     }
-    const t9 = padCollapsed ? 0 : 1;
+    const t9 = 0;
     let t10;
     if ($[9] !== scrollable) {
       t10 = <ScrollChromeContext value={chromeCtx}>{scrollable}</ScrollChromeContext>;
