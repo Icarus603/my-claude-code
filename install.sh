@@ -23,21 +23,10 @@ fail()  { printf "${RED}[x]${RESET} %s\n" "$*"; exit 1; }
 
 header() {
   echo ""
-  printf "${BOLD}${CYAN}"
-  cat << 'ART'
-   ___                            _
-  / _|_ __ ___  ___        ___ __| | ___
- | |_| '__/ _ \/ _ \_____ / __/ _` |/ _ \
- |  _| | |  __/  __/_____| (_| (_| |  __/
- |_| |_|  \___|\___|      \___\__,_|\___|
-
-ART
-  printf "${RESET}"
-  printf "${DIM}  The free build of Claude Code${RESET}\n"
+  printf "${BOLD}${CYAN}my-claude-code${RESET}\n"
+  printf "${DIM}  Personal build of Claude Code${RESET}\n"
   echo ""
 }
-
-# -------------------------------------------------------------------
 # System checks
 # -------------------------------------------------------------------
 
