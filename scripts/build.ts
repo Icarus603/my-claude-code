@@ -96,6 +96,13 @@ for (let i = 0; i < args.length; i += 1) {
     featureSet.add(arg.slice('--feature='.length))
   }
 }
+// Also collect FEATURE_* env vars → Bun.build features (same as claude-code build.ts)
+for (const key of Object.keys(process.env)) {
+  if (key.startsWith('FEATURE_')) {
+    featureSet.add(key.replace('FEATURE_', ''))
+  }
+}
+
 const features = [...featureSet]
 const outfile = './dist/cli.js'
 const buildTime = new Date().toISOString()
@@ -107,7 +114,7 @@ if (outDir !== '.') {
 }
 
 const externals = [
-  '@ant/*',
+  // '@ant/*' removed — workspace packages must be bundled
   'audio-capture-napi',
   'image-processor-napi',
   'modifiers-napi',

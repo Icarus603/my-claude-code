@@ -111,6 +111,7 @@ export type CompanionBones = {
 export type CompanionSoul = {
   name: string
   personality: string
+  seed?: string
 }
 
 export type Companion = CompanionBones &
@@ -118,7 +119,7 @@ export type Companion = CompanionBones &
     hatchedAt: number
   }
 
-// What actually persists in config. Bones are regenerated from hash(userId)
+// What actually persists in config. Bones are regenerated from seed or hash(userId)
 // on every read so species renames don't break stored companions and users
 // can't edit their way to a legendary.
 export type StoredCompanion = CompanionSoul & { hatchedAt: number }
