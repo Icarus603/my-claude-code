@@ -83,7 +83,7 @@ function getCustomSonnetOption(): ModelOption | undefined {
   if (is3P && customSonnetModel) {
     const is1m = has1mContext(customSonnetModel)
     return {
-      value: 'claude-sonnet-4-6-20250501',
+      value: customSonnetModel,
       label:
         process.env.ANTHROPIC_DEFAULT_SONNET_MODEL_NAME ?? customSonnetModel,
       description:
@@ -322,7 +322,7 @@ function getMergedOpus1MOption(fastMode = false): ModelOption {
 
 
 const MaxSonnet46Option: ModelOption = {
-  value: 'claude-sonnet-4-6-20250501',
+  value: 'sonnet',
   label: 'Sonnet',
   description: 'Sonnet 4.6 · Best for everyday tasks',
 }
