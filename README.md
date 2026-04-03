@@ -65,6 +65,21 @@ curl -fsSL https://raw.githubusercontent.com/Icarus603/my-claude-code/main/insta
 
 The installer checks your system, installs Bun if needed, clones the repo, builds `dist/cli.js`, and symlinks `my-claude-code` into `~/.local/bin`.
 
+### Uninstall
+
+To completely remove my-claude-code from your system:
+
+```bash
+# Remove the binary symlink
+rm ~/.local/bin/my-claude-code
+
+# Remove the installation directory
+rm -rf ~/my-claude-code
+
+# Remove configuration and cache (optional)
+rm -rf ~/.my-claude-code
+```
+
 ---
 
 ## Authentication and Providers
