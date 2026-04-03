@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-  <video src="assets/demo.mov" alt="my-claude-code demo" width="800" controls></video>
+  <img src="assets/demo.gif" alt="my-claude-code demo" width="800">
 </p>
 
 ---
