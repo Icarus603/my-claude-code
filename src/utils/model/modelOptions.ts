@@ -403,6 +403,7 @@ function getModelOptionsBase(fastMode = false): ModelOption[] {
       options.push(MaxHaiku45Option)
     } else {
       // Pro/Team Standard/Enterprise users: Sonnet is default, show Opus as alternative
+      options.push(MaxSonnet46Option) // Add Sonnet 4.6 explicitly
       if (checkSonnet1mAccess()) {
         options.push(getMaxSonnet46_1MOption())
       }
