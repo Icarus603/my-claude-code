@@ -4,3 +4,4 @@ dist/
 /cli-dev
 openclaw/
 .DS_Store
+.claude/
