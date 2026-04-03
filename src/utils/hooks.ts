@@ -162,6 +162,7 @@ import type { AppState } from '../state/AppState.js'
 import { jsonStringify, jsonParse } from './slowOperations.js'
 import { isEnvTruthy } from './envUtils.js'
 import { errorMessage, getErrnoCode } from './errors.js'
+import { SandboxManager } from './sandbox/sandbox-adapter.js'
 
 const TOOL_HOOK_EXECUTION_TIMEOUT_MS = 10 * 60 * 1000
 
@@ -484,6 +485,85 @@ function parseHttpHookOutput(body: string): {
     logForDebugging(validationError)
     return { validationError }
   }
+}
+
+/** Typed representation of sync hook JSON output, matching the syncHookResponseSchema Zod schema. */
+interface TypedSyncHookOutput {
+  continue?: boolean
+  suppressOutput?: boolean
+  stopReason?: string
+  decision?: 'approve' | 'block'
+  reason?: string
+  systemMessage?: string
+  hookSpecificOutput?:
+    | {
+        hookEventName: 'PreToolUse'
+        permissionDecision?: 'ask' | 'deny' | 'allow' | 'passthrough'
+        permissionDecisionReason?: string
+        updatedInput?: Record<string, unknown>
+        additionalContext?: string
+      }
+    | {
+        hookEventName: 'UserPromptSubmit'
+        additionalContext?: string
+      }
+    | {
+        hookEventName: 'SessionStart'
+        additionalContext?: string
+        initialUserMessage?: string
+        watchPaths?: string[]
+      }
+    | {
+        hookEventName: 'Setup'
+        additionalContext?: string
+      }
+    | {
+        hookEventName: 'SubagentStart'
+        additionalContext?: string
+      }
+    | {
+        hookEventName: 'PostToolUse'
+        additionalContext?: string
+        updatedMCPToolOutput?: unknown
+      }
+    | {
+        hookEventName: 'PostToolUseFailure'
+        additionalContext?: string
+      }
+    | {
+        hookEventName: 'PermissionDenied'
+        retry?: boolean
+      }
+    | {
+        hookEventName: 'Notification'
+        additionalContext?: string
+      }
+    | {
+        hookEventName: 'PermissionRequest'
+        decision?: PermissionRequestResult
+      }
+    | {
+        hookEventName: 'Elicitation'
+        action?: 'accept' | 'decline' | 'cancel'
+        content?: Record<string, unknown>
+      }
+    | {
+        hookEventName: 'ElicitationResult'
+        action?: 'accept' | 'decline' | 'cancel'
+        content?: Record<string, unknown>
+      }
+    | {
+        hookEventName: 'CwdChanged'
+        watchPaths?: string[]
+      }
+    | {
+        hookEventName: 'FileChanged'
+        watchPaths?: string[]
+      }
+    | {
+        hookEventName: 'WorktreeCreate'
+        worktreePath: string
+      }
 }
 
 function processHookJSONOutput({
@@ -954,6 +1034,35 @@ async function execCommandHook(
   // without Git Bash — but init.ts still calls setShellIfWindows() on
   // startup, which will exit first. Relaxing that is phase 1 of the
   // design's implementation order (separate PR).
+  // Sandbox wrapping: deny network access for shell hooks to prevent data
+  // exfiltration. Filesystem access is not restricted (hooks need to read/write
+  // project files). Only applied to bash hooks — PowerShell hooks are exempt
+  // and http hooks use the http hook type instead.
+  let sandboxedCommand = finalCommand
+  if (!isPowerShell && SandboxManager.isSandboxingEnabled()) {
+    try {
+      sandboxedCommand = await SandboxManager.wrapWithSandbox(
+        finalCommand,
+        undefined,
+        {
+          network: {
+            allowedDomains: [],
+            deniedDomains: [],
+          },
+          filesystem: {
+            allowWrite: ['/'],
+            denyWrite: [],
+            allowRead: [],
+            denyRead: [],
+          },
+        },
+        signal,
+      )
+    } catch {
+      // Sandbox wrapping failed — fall back to unsandboxed command
+    }
+  }
+
   let child: ChildProcessWithoutNullStreams
   if (shellType === 'powershell') {
     const pwshPath = await getCachedPowerShellPath()
@@ -974,7 +1083,7 @@ async function execCommandHook(
     // On Windows, use Git Bash explicitly (cmd.exe can't run bash syntax).
     // On other platforms, shell: true uses /bin/sh.
     const shell = isWindows ? findGitBashPath() : true
-    child = spawn(finalCommand, [], {
+    child = spawn(sandboxedCommand, [], {
       env: envVars,
       cwd: safeCwd,
       shell,
@@ -1330,6 +1439,10 @@ async function execCommandHook(
     // Clean up stream resources unless ownership was transferred (e.g., to async hook registry)
     if (!shellCommandTransferred) {
       shellCommand.cleanup()
+    }
+    // Clean up sandbox artifacts (e.g. bwrap mount-point files on Linux)
+    if (sandboxedCommand !== finalCommand) {
+      SandboxManager.cleanupAfterCommand()
     }
   }
 }

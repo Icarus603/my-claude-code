@@ -646,6 +646,8 @@ export const DEFAULT_GLOBAL_CONFIG: GlobalConfig = createDefaultGlobalConfig()
 
 export const GLOBAL_CONFIG_KEYS = [
   'apiKeyHelper',
+  'companion',
+  'companionMuted',
   'installMethod',
   'autoUpdates',
   'autoUpdatesProtectedForNative',
