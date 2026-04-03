@@ -10,7 +10,7 @@ type Props = {
 }
 
 export async function computeDefaultInstallDir(): Promise<string> {
-  return join(homedir(), '.claude', 'assistant')
+  return join(homedir(), '.my-claude-code', 'assistant')
 }
 
 export function NewInstallWizard({ onCancel }: Props) {

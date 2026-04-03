@@ -177,10 +177,6 @@ export function getRuntimeMainLoopModel(params: {
  * @returns The default model setting to use
  */
 export function getDefaultMainLoopModelSetting(): ModelName | ModelAlias {
-  if (isCodexSubscriber()) {
-    return getModelStrings().gpt53codex
-  }
-
   // Ants default to defaultModel from flag config, or Opus 1M if not configured
   if (process.env.USER_TYPE === 'ant') {
     return (
@@ -188,6 +184,9 @@ export function getDefaultMainLoopModelSetting(): ModelName | ModelAlias {
       getDefaultOpusModel() + '[1m]'
     )
   }
+
+  // Check all Claude AI subscriber types FIRST for consistent behavior when both providers are logged in.
+  // Claude AI takes precedence over Codex when both are available.
 
   // Max users get Opus as default
   if (isMaxSubscriber()) {
@@ -199,7 +198,17 @@ export function getDefaultMainLoopModelSetting(): ModelName | ModelAlias {
     return getDefaultOpusModel() + (isOpus1mMergeEnabled() ? '[1m]' : '')
   }
 
-  // PAYG (1P and 3P), Enterprise, Team Standard, and Pro get Sonnet as default
+  // Pro/Team Standard/Enterprise and PAYG Claude AI subscribers get Sonnet as default
+  if (isClaudeAISubscriber()) {
+    return getDefaultSonnetModel()
+  }
+
+  // Codex-only users (not Claude AI subscribers) get GPT-5.3-Codex as default
+  if (isCodexSubscriber()) {
+    return getModelStrings().gpt53codex
+  }
+
+  // PAYG (1P and 3P) non-subscribers get Sonnet as default
   // Note that PAYG (3P) may default to an older Sonnet model
   return getDefaultSonnetModel()
 }
@@ -301,15 +310,24 @@ export function getCanonicalName(fullModelName: ModelName): ModelShortName {
 export function getClaudeAiUserDefaultModelDescription(
   fastMode = false,
 ): string {
+  // Check Claude AI subscriber FIRST for consistent behavior when both providers are logged in.
+  // Claude AI takes precedence over Codex when both are available.
+  if (isClaudeAISubscriber()) {
+    if (isMaxSubscriber() || isTeamPremiumSubscriber()) {
+      if (isOpus1mMergeEnabled()) {
+        return `Opus 4.6 with 1M context · Most capable for complex work${fastMode ? getOpus46PricingSuffix(true) : ''}`
+      }
+      return `Opus 4.6 · Most capable for complex work${fastMode ? getOpus46PricingSuffix(true) : ''}`
+    }
+    return 'Sonnet 4.6 · Best for everyday tasks'
+  }
+
+  // Only show Codex default if user is Codex-only (no Claude AI)
   if (isCodexSubscriber()) {
     return 'GPT-5.3-Codex · Optimized for code generation and understanding'
   }
-  if (isMaxSubscriber() || isTeamPremiumSubscriber()) {
-    if (isOpus1mMergeEnabled()) {
-      return `Opus 4.6 with 1M context · Most capable for complex work${fastMode ? getOpus46PricingSuffix(true) : ''}`
-    }
-    return `Opus 4.6 · Most capable for complex work${fastMode ? getOpus46PricingSuffix(true) : ''}`
-  }
+
+  // Fallback for non-subscribers (PAYG)
   return 'Sonnet 4.6 · Best for everyday tasks'
 }
 

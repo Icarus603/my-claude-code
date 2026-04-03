@@ -16,7 +16,7 @@ import {
 import { preconnectAnthropicApi } from '../utils/apiPreconnect.js'
 import { applyExtraCACertsFromConfig } from '../utils/caCertsConfig.js'
 import { registerCleanup } from '../utils/cleanupRegistry.js'
-import { enableConfigs, recordFirstStartTime } from '../utils/config.js'
+import { enableConfigs, getGlobalConfig, recordFirstStartTime } from '../utils/config.js'
 import { logForDebugging } from '../utils/debug.js'
 import { detectCurrentRepository } from '../utils/detectRepository.js'
 import { logForDiagnosticsNoPII } from '../utils/diagLogs.js'
@@ -74,7 +74,14 @@ export const init = memoize(async (): Promise<void> => {
 
     // Populate OAuth account info if it is not already cached in config. This is needed since the
     // OAuth account info may not be populated when logging in through the VSCode extension.
-    void populateOAuthAccountInfoIfNeeded()
+    // Guard: only run after onboarding is complete. Without this check, stale Claude tokens
+    // left in the macOS Keychain (after the user clears their config directory) would be
+    // silently refreshed at startup and used to populate oauthAccount — causing
+    // isClaudeAISubscriber() to return true even when the user has only logged into Codex.
+    // hasCompletedOnboarding is false on a fresh config, which correctly blocks the bootstrap.
+    if (getGlobalConfig().hasCompletedOnboarding) {
+      void populateOAuthAccountInfoIfNeeded()
+    }
     profileCheckpoint('init_after_oauth_populate')
 
     // Initialize JetBrains IDE detection asynchronously (populates cache for later sync access)

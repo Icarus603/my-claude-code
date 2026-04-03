@@ -1689,7 +1689,7 @@ export async function cleanupNpmInstallations(): Promise<{
   }
 
   // Check for local installation at ~/.claude/local
-  const localInstallDir = join(homedir(), '.claude', 'local')
+  const localInstallDir = join(homedir(), '.my-claude-code', 'local')
 
   try {
     await rm(localInstallDir, { recursive: true })

@@ -635,7 +635,7 @@ function validateCommandPaths(
   //
   // ALTERNATIVE APPROACH: Instead of blocking all writes with cd, we could track the
   // effective CWD through the command chain (e.g., after "cd .claude/", subsequent
-  // commands would be validated with CWD=".claude/"). This would be more permissive
+  // commands would be validated with CWD=.my-claude-code/). This would be more permissive
   // but requires careful handling of:
   // - Relative paths (cd ../foo)
   // - Special cd targets (cd ~, cd -, cd with no args)

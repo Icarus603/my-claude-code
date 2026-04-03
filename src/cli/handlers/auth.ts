@@ -4,6 +4,7 @@ import {
   clearAuthRelatedCaches,
   performLogout,
 } from '../../commands/logout/logout.js'
+
 import {
   type AnalyticsMetadata_I_VERIFIED_THIS_IS_NOT_CODE_OR_FILEPATHS,
   logEvent,
@@ -27,10 +28,12 @@ import {
   getOauthAccountInfo,
   getSubscriptionType,
   isUsing3PServices,
+  removeApiKey,
   saveCodexOAuthTokens,
   saveOAuthTokensIfNeeded,
   validateForceLoginOrg,
 } from '../../utils/auth.js'
+import { getSecureStorage } from '../../utils/secureStorage/index.js'
 import { saveGlobalConfig } from '../../utils/config.js'
 import { logForDebugging } from '../../utils/debug.js'
 import { isRunningOnHomespace } from '../../utils/envUtils.js'
@@ -59,8 +62,20 @@ function hasAnyClaudexScope(scopes: string[] | undefined): boolean {
  * and sets up the local auth state.
  */
 export async function installOAuthTokens(tokens: OAuthTokens): Promise<void> {
-  // Clear old state before saving new credentials
-  await performLogout({ clearOnboarding: false })
+  // Clear only Claude-specific auth state. Do NOT use performLogout() here,
+  // as that would also clear Codex tokens, breaking multi-provider coexistence.
+  // We only want to replace Claude credentials, not wipe everything.
+  const { flushTelemetry } = await import(
+    '../../utils/telemetry/instrumentation.js'
+  )
+  await flushTelemetry()
+  await removeApiKey()
+
+  // Wipe only the Claude-specific secure storage data
+  const secureStorage = getSecureStorage()
+  secureStorage.delete()
+
+  await clearAuthRelatedCaches()
 
   // Reuse pre-fetched profile if available, otherwise fetch fresh
   const profile =

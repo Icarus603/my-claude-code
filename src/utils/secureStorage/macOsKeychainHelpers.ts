@@ -30,13 +30,11 @@ export function getMacOsKeychainStorageServiceName(
   serviceSuffix: string = '',
 ): string {
   const configDir = getClaudeConfigHomeDir()
-  const isDefaultDir = !process.env.CLAUDE_CONFIG_DIR
 
-  // Use a hash of the config dir path to create a unique but stable suffix
-  // Only add suffix for non-default directories to maintain backwards compatibility
-  const dirHash = isDefaultDir
-    ? ''
-    : `-${createHash('sha256').update(configDir).digest('hex').substring(0, 8)}`
+  // This fork uses ~/.my-claude-code as its default config dir, which differs from
+  // upstream Claude Code's ~/.claude. Always include a hash so this fork's keychain
+  // entry never collides with the upstream "Claude Code-credentials" entry.
+  const dirHash = `-${createHash('sha256').update(configDir).digest('hex').substring(0, 8)}`
   return `Claude Code${getOauthConfig().OAUTH_FILE_SUFFIX}${serviceSuffix}${dirHash}`
 }
 

@@ -422,7 +422,8 @@ function getModelOptionsBase(fastMode = false): ModelOption[] {
   }
 
   // PAYG 1P API: Default (Sonnet) + Sonnet 1M + Opus 4.6 + Opus 1M + Haiku
-  if (getAPIProvider() === 'firstParty' && !isClaudeAISubscriber()) {
+  // Note: Also check !isCodexSubscriber() to avoid adding Claude models for Codex-only users
+  if (getAPIProvider() === 'firstParty' && !isClaudeAISubscriber() && !isCodexSubscriber()) {
     if (checkSonnet1mAccess()) {
       options.push(getSonnet46_1MOption())
     }
@@ -438,6 +439,7 @@ function getModelOptionsBase(fastMode = false): ModelOption[] {
   }
 
   // PAYG 3P: Default (Sonnet 4.5) + Sonnet (3P custom) or Sonnet 4.6/1M + Opus (3P custom) or Opus 4.1/Opus 4.6/Opus1M + Haiku + Opus 4.1
+  // Note: Check !isCodexSubscriber() to avoid adding Claude models for Codex-only users
   if (getAPIProvider() !== 'firstParty' && !isClaudeAISubscriber() && !isCodexSubscriber()) {
     const customSonnet = getCustomSonnetOption()
     if (customSonnet !== undefined) {
@@ -577,9 +579,12 @@ export function getModelOptions(fastMode = false): ModelOption[] {
   }
 
   // Append additional model options fetched during bootstrap
-  for (const opt of getGlobalConfig().additionalModelOptionsCache ?? []) {
-    if (!options.some(existing => existing.value === opt.value)) {
-      options.push(opt)
+  // Only add these for Claude AI subscribers (they come from the Claude bootstrap API)
+  if (isClaudeAISubscriber()) {
+    for (const opt of getGlobalConfig().additionalModelOptionsCache ?? []) {
+      if (!options.some(existing => existing.value === opt.value)) {
+        options.push(opt)
+      }
     }
   }
 
@@ -610,10 +615,16 @@ export function getModelOptions(fastMode = false): ModelOption[] {
   } else {
     // Try to show a human-readable label for known Anthropic models, with an
     // upgrade hint if the alias now resolves to a newer version.
-    const knownOption = getKnownModelOption(customModel)
-    if (knownOption) {
-      options.push(knownOption)
+    const knownClaudeOption = getKnownModelOption(customModel)
+    if (knownClaudeOption) {
+      // Only add Claude models if the user actually has Claude access.
+      // A Codex-only user may have a stale Claude model in their settings;
+      // without this guard it would be re-injected into an OpenAI-only list.
+      if (isClaudeAISubscriber()) {
+        options.push(knownClaudeOption)
+      }
     } else {
+      // Truly unrecognized model — show as generic custom entry
       options.push({
         value: customModel,
         label: customModel,
