@@ -1,7 +1,18 @@
 <h1 align="center">my-claude-code</h1>
 
 <p align="center">
-  Private internal fork and build workspace for a modified Claude Code CLI snapshot.
+  A personal build of Claude Code with multi-provider support and experimental feature flags.
+</p>
+
+<p align="center">
+  <img src="https://img.shields.io/badge/version-9.9.99-blue?style=flat-square" alt="version">
+  <img src="https://img.shields.io/badge/Bun-1.3.11+-black?style=flat-square&logo=bun&logoColor=white" alt="Bun">
+  <img src="https://img.shields.io/badge/TypeScript-5-3178C6?style=flat-square&logo=typescript&logoColor=white" alt="TypeScript">
+  <img src="https://img.shields.io/badge/React-19-61DAFB?style=flat-square&logo=react&logoColor=black" alt="React">
+  <img src="https://img.shields.io/badge/Anthropic-Claude-D97757?style=flat-square" alt="Anthropic Claude">
+  <img src="https://img.shields.io/badge/OpenAI-Codex-412991?style=flat-square&logo=openai&logoColor=white" alt="OpenAI Codex">
+  <img src="https://img.shields.io/badge/AWS-Bedrock-FF9900?style=flat-square&logo=amazonaws&logoColor=white" alt="AWS Bedrock">
+  <img src="https://img.shields.io/badge/Google-Vertex_AI-4285F4?style=flat-square&logo=google&logoColor=white" alt="Google Vertex AI">
 </p>
 
 <p align="center">
@@ -13,36 +24,24 @@
 ## Table of Contents
 
 - [What This Repository Is](#what-this-repository-is)
-- [Current Status](#current-status)
 - [Quick Start](#quick-start)
 - [Authentication and Providers](#authentication-and-providers)
 - [Build and Run](#build-and-run)
 - [Feature Flags and Supporting Docs](#feature-flags-and-supporting-docs)
 - [Project Structure](#project-structure)
-- [Collaboration](#collaboration)
+- [Contributing](#contributing)
 
 ---
 
 ## What This Repository Is
 
-`my-claude-code` is a private working fork of Anthropic's Claude Code CLI snapshot, maintained as an internal repo for personal use and invited collaborators.
+`my-claude-code` is a personal fork of Anthropic's Claude Code CLI, maintained as a public build workspace.
 
-This fork is focused on three practical changes:
+This fork makes three practical changes over upstream:
 
 - telemetry-related behavior is removed or stubbed where possible
 - prompt-layer restrictions added by the CLI wrapper are reduced
 - build-time experimental feature flags are exposed for local builds and testing
-
-This README is written for people who already have access to this repository. It is not a public release page.
-
----
-
-## Current Status
-
-- Repository visibility: private
-- Primary audience: repo owner and invited collaborators
-- Main workflow: clone locally, install dependencies, build the CLI, then authenticate for the provider you want to use
-- Supporting technical notes live in [FEATURES.md](FEATURES.md), [AGENTS.md](AGENTS.md), [CLAUDE.md](CLAUDE.md), and [ARCHITECTURE.md](ARCHITECTURE.md)
 
 ---
 
@@ -50,10 +49,8 @@ This README is written for people who already have access to this repository. It
 
 ### Option 1: Clone and build locally
 
-This is the main supported path and does not depend on raw GitHub access.
-
 ```bash
-git clone git@github.com:Icarus603/my-claude-code.git
+git clone https://github.com/Icarus603/my-claude-code.git
 cd my-claude-code
 bun install
 bun run build
@@ -61,8 +58,6 @@ bun run build
 ```
 
 ### Option 2: One-line installer
-
-The installer only works for accounts that already have access to this private repository.
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/Icarus603/my-claude-code/main/install.sh | bash
@@ -90,23 +85,15 @@ export ANTHROPIC_API_KEY="..."
 
 ### OpenAI Codex
 
-Codex uses OpenAI OAuth through the CLI. Set the provider flag first, then run `/login`.
+Codex authenticates via OpenAI OAuth through the CLI:
 
 ```bash
 ./dist/cli.js
 ```
 
-Inside the CLI:
+Inside the CLI, run `/login` and choose the Codex login flow.
 
-```text
-/login
-```
-
-Then choose the Codex login flow.
-
-After a successful Codex login, this fork now persists `CLAUDE_CODE_USE_OPENAI=1`
-in your user config automatically, so new terminal tabs will continue using
-OpenAI Codex without needing another manual `export`.
+After a successful Codex login, `CLAUDE_CODE_USE_OPENAI=1` is persisted in your user config automatically, so new terminal sessions will continue using OpenAI Codex without a manual `export`.
 
 Supported model examples:
 
@@ -184,7 +171,7 @@ bun run build
 
 | Command | Output | Notes |
 |---|---|---|
-| `bun run build` | `./dist/cli.js` | the only supported compiled build |
+| `bun run build` | `./dist/cli.js` | compiled standalone binary |
 | `bun run dev` | source execution | slower startup, no standalone binary |
 
 ### Common usage
@@ -199,8 +186,8 @@ bun run build
 # choose a model explicitly
 ./dist/cli.js --model claude-opus-4-6
 
-# start Codex mode
-./dist/cli.js
+# switch to Codex backend
+CLAUDE_CODE_USE_OPENAI=1 ./dist/cli.js
 ```
 
 ### Selected environment variables
@@ -211,7 +198,7 @@ bun run build
 | `ANTHROPIC_AUTH_TOKEN` | alternative Anthropic auth token |
 | `ANTHROPIC_MODEL` | override default Anthropic model |
 | `ANTHROPIC_BASE_URL` | custom Anthropic-compatible endpoint |
-| `CLAUDE_CODE_USE_OPENAI` | manually force OpenAI Codex backend |
+| `CLAUDE_CODE_USE_OPENAI` | force OpenAI Codex backend |
 | `CLAUDE_CODE_USE_BEDROCK` | switch to AWS Bedrock |
 | `CLAUDE_CODE_USE_VERTEX` | switch to Google Vertex AI |
 | `CLAUDE_CODE_USE_FOUNDRY` | switch to Anthropic Foundry |
@@ -280,18 +267,6 @@ src/
 
 ---
 
-## Collaboration
+## Contributing
 
-This repository is not set up like a public open source project.
-
-If you already have write access:
-
-1. Create a branch from `main`.
-2. Make and validate your changes locally.
-3. Push your branch to this repository.
-4. Open a pull request against `main`.
-
-If you do not have access, do not assume the public fork-and-PR workflow applies here.
-
-If you are working on feature restoration, read [FEATURES.md](FEATURES.md) first because it contains the current compile status and caveats for many flags.
-
+Issues and pull requests are welcome. For larger changes, open an issue first to discuss the approach.
