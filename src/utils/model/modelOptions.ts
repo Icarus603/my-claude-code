@@ -83,7 +83,7 @@ function getCustomSonnetOption(): ModelOption | undefined {
   if (is3P && customSonnetModel) {
     const is1m = has1mContext(customSonnetModel)
     return {
-      value: 'sonnet',
+      value: 'claude-sonnet-4-6-20250501',
       label:
         process.env.ANTHROPIC_DEFAULT_SONNET_MODEL_NAME ?? customSonnetModel,
       description:
@@ -100,7 +100,7 @@ function getCustomSonnetOption(): ModelOption | undefined {
 function getSonnet46Option(): ModelOption {
   const is3P = getAPIProvider() !== 'firstParty'
   return {
-    value: is3P ? getModelStrings().sonnet46 : 'sonnet',
+    value: getModelStrings().sonnet46,
     label: 'Sonnet',
     description: `Sonnet 4.6 · Best for everyday tasks${is3P ? '' : ` · ${formatModelPricing(COST_TIER_3_15)}`}`,
     descriptionForModel:
@@ -322,7 +322,7 @@ function getMergedOpus1MOption(fastMode = false): ModelOption {
 
 
 const MaxSonnet46Option: ModelOption = {
-  value: 'sonnet',
+  value: 'claude-sonnet-4-6-20250501',
   label: 'Sonnet',
   description: 'Sonnet 4.6 · Best for everyday tasks',
 }
