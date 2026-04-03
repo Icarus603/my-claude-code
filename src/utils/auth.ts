@@ -1619,20 +1619,20 @@ async function checkAndRefreshOAuthTokenIfNeededImpl(
 }
 
 export function isClaudeAISubscriber(): boolean {
-  if (!isAnthropicAuthEnabled()) {
+  // Check if we have valid Claude OAuth tokens
+  // Note: We no longer check isAnthropicAuthEnabled() here to allow multi-provider
+  // login persistence. Users can be logged into both Claude and Codex simultaneously.
+  const tokens = getClaudeAIOAuthTokens()
+  if (!tokens?.accessToken) {
     return false
   }
-
-  return shouldUseClaudeAIAuth(getClaudeAIOAuthTokens()?.scopes)
+  return shouldUseClaudeAIAuth(tokens.scopes)
 }
 
 export function isCodexSubscriber(): boolean {
-  // Only treat as Codex subscriber when explicitly using OpenAI provider
-  if (getAPIProvider() !== 'openai') {
-    return false
-  }
-
-  // Verify we actually have valid Codex tokens
+  // Check if we have valid Codex tokens
+  // Note: We no longer check getAPIProvider() here to allow multi-provider
+  // login persistence. Users can be logged into both Claude and Codex simultaneously.
   const tokens = getCodexOAuthTokens()
   return !!tokens?.accessToken
 }
