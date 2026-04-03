@@ -20,7 +20,6 @@
 - [Feature Flags and Supporting Docs](#feature-flags-and-supporting-docs)
 - [Project Structure](#project-structure)
 - [Collaboration](#collaboration)
-- [License and Risk Notice](#license-and-risk-notice)
 
 ---
 
@@ -296,10 +295,3 @@ If you do not have access, do not assume the public fork-and-PR workflow applies
 
 If you are working on feature restoration, read [FEATURES.md](FEATURES.md) first because it contains the current compile status and caveats for many flags.
 
----
-
-## License and Risk Notice
-
-This repository does not currently include a standalone `LICENSE` file, and this README should not be read as granting one.
-
-The upstream Claude Code source and related rights belong to Anthropic. This repo is maintained as a private internal workspace around a source snapshot and related modifications. Use, sharing, and redistribution should be treated as restricted unless and until an explicit license is added.
