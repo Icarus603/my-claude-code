@@ -237,6 +237,31 @@ function getGpt54MiniOption(): ModelOption {
   }
 }
 
+/**
+ * Builds model options from dynamically fetched Codex models.
+ * Falls back to hardcoded options if fetching fails.
+ */
+async function getDynamicCodexModelOptions(): Promise<ModelOption[]> {
+  try {
+    const { fetchCodexModels } = await import('../../services/api/codex-fetch-adapter.js')
+    const models = await fetchCodexModels()
+
+    return models.map(model => ({
+      value: model.id,
+      label: model.label,
+      description: `${model.label} · ${model.description}`,
+      descriptionForModel: `${model.label} - ${model.description}`,
+    }))
+  } catch {
+    // Fallback to hardcoded options if dynamic fetch fails
+    return [
+      getGpt54Option(),
+      getGpt53CodexOption(),
+      getGpt54MiniOption(),
+    ]
+  }
+}
+
 function getMaxOpusOption(fastMode = false): ModelOption {
   return {
     value: 'opus',
@@ -318,11 +343,21 @@ function getModelOptionsBase(fastMode = false): ModelOption[] {
 
   // Codex subscribers get OpenAI model options
   if (isCodexSubscriber()) {
+    // Try to use dynamically fetched models from cache
+    const { getCachedCodexModels } = require('../../services/api/codex-fetch-adapter.js') as typeof import('../../services/api/codex-fetch-adapter.js')
+    const cachedModels = getCachedCodexModels()
+
+    // Build options from cached models
+    const modelOptions: ModelOption[] = cachedModels.map(model => ({
+      value: model.id,
+      label: model.label,
+      description: `${model.label} · ${model.description}`,
+    }))
+
+    // Add default option at the beginning
     return [
       getDefaultOptionForUser(),
-      getGpt54Option(),
-      getGpt53CodexOption(),
-      getGpt54MiniOption(),
+      ...modelOptions,
     ]
   }
 

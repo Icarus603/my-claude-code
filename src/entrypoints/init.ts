@@ -84,6 +84,20 @@ export const init = memoize(async (): Promise<void> => {
     // Detect GitHub repository asynchronously (populates cache for gitDiff PR linking)
     void detectCurrentRepository()
 
+    // Prefetch Codex models if user is a Codex subscriber (populates cache for /model command)
+    // This runs asynchronously and won't block startup
+    void (async () => {
+      try {
+        const { isCodexSubscriber } = await import('../utils/auth.js')
+        if (isCodexSubscriber()) {
+          const { fetchCodexModels } = await import('../services/api/codex-fetch-adapter.js')
+          void fetchCodexModels()
+        }
+      } catch {
+        // Silently fail - fallback models will be used
+      }
+    })()
+
     // Initialize the loading promise early so that other systems (like plugin hooks)
     // can await remote settings loading. The promise includes a timeout to prevent
     // deadlocks if loadRemoteManagedSettings() is never called (e.g., Agent SDK tests).

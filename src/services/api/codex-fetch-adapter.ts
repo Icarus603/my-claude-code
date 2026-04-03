@@ -51,7 +51,131 @@ export function mapClaudeModelToCodex(claudeModel: string | null): string {
  * @returns True if the model is a Codex model, false otherwise
  */
 export function isCodexModel(model: string): boolean {
-  return CODEX_MODELS.some(m => m.id === model)
+  // Use dynamically fetched models if available, otherwise fall back to hardcoded list
+  const models = getCachedCodexModels()
+  return models.some(m => m.id === model)
+}
+
+// ── Dynamic model fetching ──────────────────────────────────────────
+
+/** Cache for dynamically fetched models */
+let cachedModels: Array<{ id: string; label: string; description: string }> | null = null
+let lastFetchTime = 0
+const CACHE_TTL_MS = 5 * 60 * 1000 // 5 minutes
+
+/**
+ * Fetches available Codex models from the ChatGPT backend API.
+ * Falls back to hardcoded CODEX_MODELS if the API is unavailable.
+ *
+ * Note: The ChatGPT backend API endpoint for models is inferred from the
+ * responses endpoint pattern. If OpenAI adds an official /models endpoint,
+ * this function will automatically use it.
+ */
+export async function fetchCodexModels(): Promise<
+  Array<{ id: string; label: string; description: string }>
+> {
+  // Return cached models if still valid
+  if (cachedModels && Date.now() - lastFetchTime < CACHE_TTL_MS) {
+    return cachedModels
+  }
+
+  // Check for environment variable override (for testing or manual config)
+  const envModels = process.env.CODEX_MODELS_OVERRIDE
+  if (envModels) {
+    try {
+      const parsed = JSON.parse(envModels) as Array<{
+        id: string
+        label?: string
+        description?: string
+      }>
+      cachedModels = parsed.map(m => ({
+        id: m.id,
+        label: m.label || m.id,
+        description: m.description || 'Codex model',
+      }))
+      lastFetchTime = Date.now()
+      return cachedModels
+    } catch {
+      console.warn('[codex-models] Failed to parse CODEX_MODELS_OVERRIDE, using API/fallback')
+    }
+  }
+
+  try {
+    const tokens = getCodexOAuthTokens()
+    if (!tokens?.accessToken) {
+      throw new Error('No Codex OAuth tokens available')
+    }
+
+    // Try to fetch models from the ChatGPT backend
+    // The endpoint follows the pattern: /backend-api/codex/models
+    const response = await fetch('https://chatgpt.com/backend-api/codex/models', {
+      method: 'GET',
+      headers: {
+        Authorization: `Bearer ${tokens.accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    })
+
+    if (!response.ok) {
+      // 404 or other error means the endpoint doesn't exist yet
+      // Fall back to hardcoded models
+      if (response.status === 404) {
+        console.debug('[codex-models] /models endpoint not available, using fallback')
+      } else {
+        console.warn(`[codex-models] API error ${response.status}, using fallback`)
+      }
+      return [...CODEX_MODELS]
+    }
+
+    const data = (await response.json()) as {
+      models?: Array<{
+        id: string
+        name?: string
+        description?: string
+      }>
+    }
+
+    if (!data.models || !Array.isArray(data.models)) {
+      console.warn('[codex-models] Invalid API response format, using fallback')
+      return [...CODEX_MODELS]
+    }
+
+    // Transform API response to match our format
+    const models = data.models.map(m => ({
+      id: m.id,
+      label: m.name || m.id,
+      description: m.description || 'Codex model',
+    }))
+
+    // Update cache
+    cachedModels = models
+    lastFetchTime = Date.now()
+
+    return models
+  } catch (error) {
+    console.debug('[codex-models] Fetch failed:', error)
+    return [...CODEX_MODELS]
+  }
+}
+
+/**
+ * Gets cached Codex models or falls back to hardcoded list.
+ * Synchronous version for backwards compatibility.
+ */
+export function getCachedCodexModels(): Array<{
+  id: string
+  label: string
+  description: string
+}> {
+  return cachedModels || [...CODEX_MODELS]
+}
+
+/**
+ * Clears the models cache, forcing a fresh fetch on next call.
+ */
+export function clearCodexModelsCache(): void {
+  cachedModels = null
+  lastFetchTime = 0
 }
 
 // ── JWT helpers ─────────────────────────────────────────────────────
