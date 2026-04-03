@@ -123,10 +123,8 @@ export function getDefaultSonnetModel(): ModelName {
   if (process.env.ANTHROPIC_DEFAULT_SONNET_MODEL) {
     return process.env.ANTHROPIC_DEFAULT_SONNET_MODEL
   }
-  // Default to Sonnet 4.5 for 3P since they may not have 4.6 yet
-  if (getAPIProvider() !== 'firstParty') {
-    return getModelStrings().sonnet45
-  }
+  // Always use Sonnet 4.6 as the default Sonnet model
+  // Note: This is used when the user selects 'sonnet' alias in the model picker
   return getModelStrings().sonnet46
 }
 
