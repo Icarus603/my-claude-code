@@ -306,7 +306,13 @@ export async function getAnthropicClient({
   }
 
   // ── Codex (OpenAI) provider via fetch adapter ─────────────────────
-  if (isCodexSubscriber()) {
+  // Only route to Codex when the selected model is actually a GPT/Codex model.
+  // If a Claude model is selected, always use the Anthropic client even when
+  // Codex tokens are present (users can be logged into both providers simultaneously).
+  const isCodexModel =
+    model !== undefined &&
+    (model.includes('gpt-') || model.toLowerCase().includes('codex'))
+  if (isCodexSubscriber() && isCodexModel) {
     const codexTokens = getCodexOAuthTokens()
     if (codexTokens?.accessToken) {
       const codexFetch = createCodexFetch(codexTokens.accessToken)
