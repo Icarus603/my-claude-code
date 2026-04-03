@@ -3,3 +3,4 @@ dist/
 cli
 cli-dev
 openclaw/
+.DS_Store
