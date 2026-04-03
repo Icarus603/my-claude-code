@@ -3,11 +3,11 @@ import * as React from 'react';
 import { useEffect, useState } from 'react';
 import { extraUsage as extraUsageCommand } from 'src/commands/extra-usage/index.js';
 import { formatCost } from 'src/cost-tracker.js';
-import { getSubscriptionType, isCodexSubscriber } from 'src/utils/auth.js';
+import { getSubscriptionType, isClaudeAISubscriber, isCodexSubscriber } from 'src/utils/auth.js';
 import { useTerminalSize } from '../../hooks/useTerminalSize.js';
 import { Box, Text } from '../../ink.js';
 import { useKeybinding } from '../../keybindings/useKeybinding.js';
-import { type ExtraUsage, fetchUtilization, type RateLimit, type Utilization } from '../../services/api/usage.js';
+import { type ExtraUsage, fetchAllProvidersUtilization, type RateLimit, type Utilization } from '../../services/api/usage.js';
 import { formatResetText } from '../../utils/format.js';
 import { logError } from '../../utils/log.js';
 import { jsonStringify } from '../../utils/slowOperations.js';
@@ -172,7 +172,8 @@ function LimitBar(t0) {
   }
 }
 export function Usage(): React.ReactNode {
-  const [utilization, setUtilization] = useState<Utilization | null>(null);
+  const [claudeUtilization, setClaudeUtilization] = useState<Utilization | null>(null);
+  const [codexUtilization, setCodexUtilization] = useState<Utilization | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const {
@@ -184,8 +185,9 @@ export function Usage(): React.ReactNode {
     setIsLoading(true);
     setError(null);
     try {
-      const data = await fetchUtilization();
-      setUtilization(data);
+      const data = await fetchAllProvidersUtilization();
+      setClaudeUtilization(data.claude);
+      setCodexUtilization(data.codex);
     } catch (err) {
       logError(err as Error);
       const axiosError = err as {
@@ -219,7 +221,7 @@ export function Usage(): React.ReactNode {
         </Text>
       </Box>;
   }
-  if (!utilization) {
+  if (isLoading) {
     return <Box flexDirection="column" gap={1}>
         <Text dimColor>Loading usage data…</Text>
         <Text dimColor>
@@ -228,44 +230,46 @@ export function Usage(): React.ReactNode {
       </Box>;
   }
 
-  // Only Max and Team plans have a Sonnet limit that differs from the weekly
-  // limit (see rateLimitMessages.ts). For other plans the bar is redundant.
-  // Show for null (unknown plan) to stay consistent with rateLimitMessages.ts,
-  // which labels it "Sonnet limit" in that case.
+  // Multi-provider usage display: Show usage for all authenticated providers
   const subscriptionType = getSubscriptionType();
-  const isCodex = isCodexSubscriber();
   const showSonnetBar = subscriptionType === 'max' || subscriptionType === 'team' || subscriptionType === null;
-  const limits = isCodex ? [{
-    title: 'Current session',
-    limit: utilization.five_hour
-  }, {
-    title: 'Current week',
-    limit: utilization.seven_day
-  }] : [{
-    title: 'Current session',
-    limit: utilization.five_hour
-  }, {
-    title: 'Current week (all models)',
-    limit: utilization.seven_day
-  }, ...(showSonnetBar ? [{
-    title: 'Current week (Sonnet only)',
-    limit: utilization.seven_day_sonnet
-  }] : [])];
+  const hasClaude = isClaudeAISubscriber() && claudeUtilization;
+  const hasCodex = isCodexSubscriber() && codexUtilization;
+
   return <Box flexDirection="column" gap={1} width="100%">
-      {isCodex && utilization.plan_type && <Text dimColor={true}>ChatGPT {utilization.plan_type} subscription</Text>}
-      {isCodex && utilization.credits_balance !== undefined && utilization.credits_balance !== null && <Text dimColor={true}>Credits balance: {utilization.credits_balance}</Text>}
-      {limits.some(({
-      limit
-    }) => limit) || <Text dimColor>{isCodex ? 'Usage data is unavailable for this Codex account right now.' : '/usage is only available for subscription plans.'}</Text>}
+      {/* Claude AI Usage Section */}
+      {hasClaude && (
+        <>
+          <Text bold>Claude AI</Text>
+          <Box paddingLeft={2} flexDirection="column" gap={1}>
+            {claudeUtilization.five_hour && <LimitBar title="Current session" limit={claudeUtilization.five_hour} maxWidth={maxWidth} />}
+            {claudeUtilization.seven_day && <LimitBar title="Current week (all models)" limit={claudeUtilization.seven_day} maxWidth={maxWidth} />}
+            {showSonnetBar && claudeUtilization.seven_day_sonnet && <LimitBar title="Current week (Sonnet only)" limit={claudeUtilization.seven_day_sonnet} maxWidth={maxWidth} />}
+            {!claudeUtilization.five_hour && !claudeUtilization.seven_day && <Text dimColor>No usage limits available</Text>}
+          </Box>
+        </>
+      )}
 
-      {limits.map(({
-      title,
-      limit: limit_0
-    }) => limit_0 && <LimitBar key={title} title={title} limit={limit_0} maxWidth={maxWidth} />)}
+      {/* Codex Usage Section */}
+      {hasCodex && (
+        <>
+          <Text bold>ChatGPT Codex</Text>
+          {codexUtilization.plan_type && <Text dimColor={true}>{codexUtilization.plan_type} subscription</Text>}
+          {codexUtilization.credits_balance !== undefined && codexUtilization.credits_balance !== null && <Text dimColor={true}>Credits balance: {codexUtilization.credits_balance}</Text>}
+          <Box paddingLeft={2} flexDirection="column" gap={1}>
+            {codexUtilization.five_hour && <LimitBar title="Current session" limit={codexUtilization.five_hour} maxWidth={maxWidth} />}
+            {codexUtilization.seven_day && <LimitBar title="Current week" limit={codexUtilization.seven_day} maxWidth={maxWidth} />}
+            {!codexUtilization.five_hour && !codexUtilization.seven_day && <Text dimColor>Usage data is unavailable for this Codex account right now.</Text>}
+          </Box>
+        </>
+      )}
 
-      {!isCodex && utilization.extra_usage && <ExtraUsageSection extraUsage={utilization.extra_usage} maxWidth={maxWidth} />}
+      {/* No providers message */}
+      {!hasClaude && !hasCodex && <Text dimColor>/usage is only available for subscription plans.</Text>}
 
-      {!isCodex && isEligibleForOverageCreditGrant() && <OverageCreditUpsell maxWidth={maxWidth} />}
+      {hasClaude && claudeUtilization?.extra_usage && <ExtraUsageSection extraUsage={claudeUtilization.extra_usage} maxWidth={maxWidth} />}
+
+      {hasClaude && isEligibleForOverageCreditGrant() && <OverageCreditUpsell maxWidth={maxWidth} />}
 
       <Text dimColor>
         <ConfigurableShortcutHint action="confirm:no" context="Settings" fallback="Esc" description="cancel" />
