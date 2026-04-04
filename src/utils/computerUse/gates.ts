@@ -10,7 +10,7 @@ type ChicagoConfig = CuSubGates & {
 }
 
 const DEFAULTS: ChicagoConfig = {
-  enabled: false,
+  enabled: true,
   pixelValidation: false,
   clipboardPasteMultiline: true,
   mouseAnimation: true,

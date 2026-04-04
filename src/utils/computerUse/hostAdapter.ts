@@ -45,9 +45,10 @@ export function getComputerUseHostAdapter(): ComputerUseHostAdapter {
       getHideBeforeActionEnabled: () => getChicagoSubGates().hideBeforeAction,
     }),
     ensureOsPermissions: async () => {
+      if (process.platform !== 'darwin') return { granted: true }
       const cu = requireComputerUseSwift()
-      const accessibility = cu.tcc.checkAccessibility()
-      const screenRecording = cu.tcc.checkScreenRecording()
+      const accessibility = (cu as any).tcc.checkAccessibility()
+      const screenRecording = (cu as any).tcc.checkScreenRecording()
       return accessibility && screenRecording
         ? { granted: true }
         : { granted: false, accessibility, screenRecording }
